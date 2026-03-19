@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - Green Dong Nai</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='loginstyle.css') }}">
+</head>
+<body>
+    <div class="leaves">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="login-card">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div style="background: rgba(255, 77, 77, 0.2); color: #fff; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; border: 1px solid #ff4d4d; text-align: center;">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <h2>Create Account</h2>
+
+        <form action="{{ url_for('signup') }}" method="POST">
+            <div class="input-box">
+                <input type="text" name="username" placeholder=" " required>
+                <label>Username</label>
+            </div>
+
+            <div class="input-box">
+                <input type="email" name="email" placeholder=" " required>
+                <label>Email</label>
+            </div>
+
+            <div class="input-box">
+                <input type="password" name="password" placeholder=" " required>
+                <label>Password</label>
+            </div>
+
+            <div class="input-box">
+                <input type="password" name="passwordconfirm" placeholder=" " required>
+                <label>Confirm Password</label>
+            </div>
+
+            <button type="submit" class="login-btn">Sign Up</button>
+        </form>
+
+        <p class="signup">
+            Already have an account? 
+            <a href="{{ url_for('login') }}">Login</a>
+        </p>
+    </div>
+</body>
+</html>

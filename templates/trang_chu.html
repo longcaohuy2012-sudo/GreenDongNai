@@ -1,0 +1,24 @@
+<div class="dashboard-container">
+    <header class="db-header">
+        <h1>Bảng điều khiển 🌿</h1>
+        <p>Hôm nay bạn đã đóng góp bao nhiêu mầm xanh?</p>
+    </header>
+
+    <div class="db-grid">
+        <a href="{{ url_for('nhan_dien_anh') }}" class="db-card">
+            <div class="db-icon">📸</div>
+            <h3>Nhận diện ảnh</h3>
+            <p>Sử dụng AI phân loại rác qua camera.</p>
+        </a>
+
+        <a href="{{ url_for('phan_loai') }}" class="db-card">
+            <div class="db-icon">♻️</div>
+            <h3>Hướng dẫn phân loại</h3>
+            <p>Kiến thức xử lý rác đúng cách.</p>
+        </a>
+    </div>
+
+    <footer class="db-footer">
+        <a href="{{ url_for('logout') }}" class="btn-logout">Thoát tài khoản</a>
+    </footer>
+</div>

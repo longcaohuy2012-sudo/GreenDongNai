@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Green Dong Nai</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='loginstyle.css') }}">
+</head>
+<body>
+    <div class="leaves">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="login-card">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="error-msg">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <h2>Login</h2>
+
+        <form action="{{ url_for('login') }}" method="POST">
+            <div class="input-box">
+                <input type="text" name="username" placeholder=" " required>
+                <label>Username/Email</label>
+            </div>
+
+            <div class="input-box">
+                <input type="password" name="password" placeholder=" " required>
+                <label>Password</label>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+
+        <p class="signup-text">
+            Don't have an account? 
+            <a href="{{ url_for('signup') }}">Sign up</a>
+        </p>
+    </div>
+</body>
+</html>
