@@ -5,6 +5,9 @@ from flask import Flask, flash, render_template, request, redirect, url_for, ses
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 app.secret_key = 'greendongnai_2026'
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
