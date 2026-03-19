@@ -38,6 +38,10 @@ def save_users(users):
 
 # 3.ROUTES
 
+@app.route('/phan_loai')
+def phan_loai():
+    return "Trang hướng dẫn phân loại đang được xây dựng!"
+
 @app.route('/landing', methods=['GET', 'POST'])
 def landing():
     if request.method == 'POST':
