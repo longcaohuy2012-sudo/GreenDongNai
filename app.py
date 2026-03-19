@@ -4,6 +4,9 @@ import json
 from flask import Flask, flash, render_template, request, redirect, url_for, session
 from werkzeug.utils import secure_filename
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USER_FILE = os.path.join(BASE_DIR, 'users.json')
+
 app = Flask(__name__)
 app.secret_key = 'greendongnai_2026'
 
@@ -33,7 +36,7 @@ def save_users(users):
     with open(USER_FILE, 'w', encoding='utf-8') as f:
         json.dump(users, f, ensure_ascii=False, indent=4)
 
-# 3. CÁC ROUTES (ĐẢM BẢO CHỮ THƯỜNG TRONG TEMPLATE)
+# 3.ROUTES
 
 @app.route('/landing', methods=['GET', 'POST'])
 def landing():
@@ -139,7 +142,7 @@ def AI_image():
 def logout():
     session.clear()
     return redirect(url_for('login'))
-#---running web---
+#---chạy web giữa file---
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port)        
