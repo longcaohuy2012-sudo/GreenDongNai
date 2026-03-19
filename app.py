@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = 'greendongnai_2026'
 
-# CẤU HÌNH ĐƯỜNG DẪN (QUAN TRỌNG CHO RENDER)
+# 1. CẤU HÌNH ĐƯỜNG DẪN
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 if not os.path.exists(UPLOAD_FOLDER):
@@ -16,31 +16,26 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 USER_FILE = os.path.join(BASE_DIR, 'users.json')
 
-# --- HÀM BỔ TRỢ ---
+# 2. CÁC HÀM BỔ TRỢ
 def get_users():
     if not os.path.exists(USER_FILE):
-        with open(USER_FILE, 'w') as f: json.dump({}, f) # Tạo file mới nếu chưa có
+        with open(USER_FILE, 'w', encoding='utf-8') as f: 
+            json.dump({}, f)
         return {}
-    with open(USER_FILE, 'r', encoding='utf-8') as f:
-        try:
-            return json.load(f)
-        except:
-            return {}
+    try:
+        with open(USER_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data if isinstance(data, dict) else {}
+    except:
+        return {}
 
 def save_users(users):
     with open(USER_FILE, 'w', encoding='utf-8') as f:
         json.dump(users, f, ensure_ascii=False, indent=4)
 
-# --- GIỮ NGUYÊN CÁC ROUTE CỦA BẠN NHƯNG KIỂM TRA TÊN FILE HTML ---
+# 3. CÁC ROUTES (ĐẢM BẢO CHỮ THƯỜNG TRONG TEMPLATE)
 
-if __name__ == '__main__':
-    # SỬA DÒNG NÀY ĐỂ RENDER CHẤP NHẬN
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
-
-# --- ROUTES ---
-
-@app.route('/landing', methods = ['GET', 'POST'])
+@app.route('/landing', methods=['GET', 'POST'])
 def landing():
     if request.method == 'POST':
         return redirect(url_for('login'))
@@ -60,17 +55,18 @@ def signup():
         password = request.form.get('password')
         confirm = request.form.get('passwordconfirm')
         
-        users = get_users()
+        if not user or not password:
+            flash("Vui lòng điền đầy đủ thông tin!")
+            return redirect(url_for('signup'))
 
-        # 1. Kiểm tra trùng Username
+        users = get_users()
         if user in users:
             flash("Tên tài khoản này đã tồn tại!")
             return redirect(url_for('signup'))
             
-        # 2. Kiểm tra trùng Email (1 email chỉ 1 tài khoản) [HÀNH ĐỘNG MỚI]
         existing_emails = [info.get('email') for info in users.values()]
         if email in existing_emails:
-            flash("Email này đã được sử dụng cho tài khoản khác!")
+            flash("Email này đã được sử dụng!")
             return redirect(url_for('signup'))
 
         if password != confirm:
@@ -87,19 +83,17 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        identity = request.form.get('username', '').strip() # Có thể là User hoặc Email
+        identity = request.form.get('username', '').strip()
         password = request.form.get('password')
         users = get_users()
         
         target_user = None
+        username_final = None
 
-        # Logic Đăng nhập 2 in 1
         if identity in users:
-            # Nếu identity là Username trực tiếp
             target_user = users[identity]
             username_final = identity
         else:
-            # Nếu identity không phải username, kiểm tra xem nó có phải Email ko
             for u_name, u_info in users.items():
                 if u_info.get('email') == identity:
                     target_user = u_info
@@ -108,7 +102,7 @@ def login():
         
         if target_user and target_user.get("password") == password:
             session['user'] = username_final
-            return redirect(url_for('home')) # home là trang chính của app
+            return redirect(url_for('home'))
         
         flash("Tên đăng nhập/Email hoặc mật khẩu không đúng!")
         return redirect(url_for('login'))
@@ -129,26 +123,23 @@ def AI_image():
         return redirect(url_for('home'))
 
     if file:
-        # Lưu file
         ext = file.filename.rsplit('.', 1)[-1].lower()
         filename = secure_filename(f"trash_{int(time.time())}.{ext}")
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        # GIẢ LẬP KẾT QUẢ AI (Chỗ này để Long lắp mô hình sau)
         result = {
             "label": "Giấy vụn",
             "type": "Rác tái chế (nếu sạch)",
             "action": "Hãy bỏ vào thùng rác màu xanh dương nếu giấy không dính dầu mỡ nhé!"
         }
-        
         return render_template('ket_qua.html', result=result, img_path=filename)
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
-
+#---running web---
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
