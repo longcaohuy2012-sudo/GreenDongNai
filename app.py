@@ -5,23 +5,38 @@ from flask import Flask, flash, render_template, request, redirect, url_for, ses
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
 app.secret_key = 'greendongnai_2026'
 
+# CẤU HÌNH ĐƯỜNG DẪN (QUAN TRỌNG CHO RENDER)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 USER_FILE = os.path.join(BASE_DIR, 'users.json')
-# --- HÀM BỔ TRỢ CẬP NHẬT ---
+
+# --- HÀM BỔ TRỢ ---
 def get_users():
     if not os.path.exists(USER_FILE):
+        with open(USER_FILE, 'w') as f: json.dump({}, f) # Tạo file mới nếu chưa có
         return {}
     with open(USER_FILE, 'r', encoding='utf-8') as f:
         try:
-            data = json.load(f)
-            return data if isinstance(data, dict) else {}
-        except (json.JSONDecodeError, FileNotFoundError):
+            return json.load(f)
+        except:
             return {}
+
+def save_users(users):
+    with open(USER_FILE, 'w', encoding='utf-8') as f:
+        json.dump(users, f, ensure_ascii=False, indent=4)
+
+# --- GIỮ NGUYÊN CÁC ROUTE CỦA BẠN NHƯNG KIỂM TRA TÊN FILE HTML ---
+
+if __name__ == '__main__':
+    # SỬA DÒNG NÀY ĐỂ RENDER CHẤP NHẬN
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 # --- ROUTES ---
 
@@ -135,4 +150,5 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
