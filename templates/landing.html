@@ -20,48 +20,45 @@
         </div>
     </nav>
 
-    <section class="home">
-        <div class="home-box">
-            <h1>Save The Environment 🌍</h1>
-            <p>Hành động nhỏ cho Đồng Nai xanh.</p>
+    <section class="home" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div class="home-box" style="max-width: 1000px; width: 100%;">
+        <h1>Save The Environment 🌍</h1>
+        <p>Hành động nhỏ cho Đồng Nai xanh.</p>
 
-            <div style="display: flex; justify-content: center; gap: 40px; margin: 25px 0; flex-wrap: wrap;">
-                
-                <div style="text-align: center;">
-                    <div class="model-container" style="width: 300px; height: 300px;">
-                        <model-viewer    
-                            src="https://github.com/longcaohuy2012-sudo/GreenDongNai/raw/refs/heads/main/static/3Dmodels/CAMERA_model.glb"
-                            alt="Mô hình Camera AI"
-                            auto-rotate 
-                            camera-controls
-                            shadow-intensity="1"
-                            environment-image="neutral"
-                            loading="lazy"
-                            style="width: 100%; height: 100%;">
-                        </model-viewer>
-                    </div>
-                    <p style="font-size: 0.9rem; font-weight: bold; color: #1b4332; margin-top: 5px;">Chụp ảnh</p>
+        <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
+            
+            <div class="model-item" style="flex: 1; min-width: 280px; max-width: 400px;">
+                <div class="model-container" style="width: 100%; height: 300px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <model-viewer    
+                        src="https://github.com/longcaohuy2012-sudo/GreenDongNai/raw/refs/heads/main/static/3Dmodels/CAMERA_model.glb"
+                        alt="Mô hình Camera"
+                        auto-rotate camera-controls
+                        environment-image="neutral"
+                        shadow-intensity="1"
+                        style="width: 100%; height: 100%;">
+                    </model-viewer>
                 </div>
-
-                <div style="text-align: center;">
-                    <div class="model-container" style="width: 300px; height: 300px;">
-                        <model-viewer 
-                            src="https://github.com/longcaohuy2012-sudo/GreenDongNai/raw/refs/heads/main/static/3Dmodels/3RS_model.glb"
-                            alt="Mô hình 3Rs"
-                            auto-rotate 
-                            camera-controls
-                            shadow-intensity="1"
-                            environment-image="neutral"
-                            loading="lazy"
-                            style="width: 100%; height: 100%;">
-                        </model-viewer>
-                    </div>
-                    <p style="font-size: 0.9rem; font-weight: bold; color: #1b4332; margin-top: 5px;">AI Phân loại</p>
-                </div>
+                <p style="font-weight: bold; color: #1b4332; margin-top: 10px;">Chụp ảnh</p>
             </div>
 
-            <a href="{{ url_for('login') }}" class="main-btn">Bắt đầu ngay</a>
+            <div class="model-item" style="flex: 1; min-width: 280px; max-width: 400px;">
+                <div class="model-container" style="width: 100%; height: 300px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <model-viewer 
+                        src="https://github.com/longcaohuy2012-sudo/GreenDongNai/raw/refs/heads/main/static/3Dmodels/3RS_model.glb"
+                        alt="Mô hình 3Rs"
+                        auto-rotate camera-controls
+                        environment-image="neutral"
+                        shadow-intensity="1"
+                        style="width: 100%; height: 100%;">
+                    </model-viewer>
+                </div>
+                <p style="font-weight: bold; color: #1b4332; margin-top: 10px;">AI Phân loại</p>
+            </div>
+
         </div>
-    </section>
+
+        <a href="{{ url_for('login') }}" class="main-btn">Bắt đầu ngay</a>
+    </div>
+</section>
 </body>
 </html>
