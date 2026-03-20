@@ -1,235 +1,23 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<title>Green Đồng Nai</title>
-
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-
-<style>
-
-/* RESET */
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial;
-}
-
-/* BACKGROUND */
-body{
-  height:100vh;
-  background:linear-gradient(135deg,#b7e4c7,#95d5b2,#74c69d);
-  overflow:hidden;
-  position:relative;
-}
-
-/* ÁNH SÁNG */
-body::before{
-  content:"";
-  position:absolute;
-  width:600px;
-  height:600px;
-  background:radial-gradient(circle,rgba(255,255,255,0.6),transparent 70%);
-  top:-150px;
-  left:-150px;
-  filter:blur(40px);
-  animation:sunmove 8s ease-in-out infinite alternate;
-}
-
-@keyframes sunmove{
-  0%{transform:translate(0,0);}
-  100%{transform:translate(100px,80px);}
-}
-
-/* LÁ RƠI */
-.leaves{
-  position:fixed;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-}
-
-.leaves span{
-  position:absolute;
-  top:-50px;
-  width:20px;
-  height:20px;
-  background:#1b4332;
-  border-radius:50% 0;
-  animation:fall linear infinite;
-}
-
-.leaves span:nth-child(1){ left:10%; animation-duration:12s; }
-.leaves span:nth-child(2){ left:25%; animation-duration:10s; }
-.leaves span:nth-child(3){ left:40%; animation-duration:14s; }
-.leaves span:nth-child(4){ left:60%; animation-duration:11s; }
-.leaves span:nth-child(5){ left:75%; animation-duration:13s; }
-.leaves span:nth-child(6){ left:85%; animation-duration:9s; }
-.leaves span:nth-child(7){ left:50%; animation-duration:15s; }
-
-@keyframes fall{
-  0%{transform:translateY(0) rotate(0deg); opacity:0;}
-  10%{opacity:1;}
-  100%{transform:translateY(110vh) rotate(360deg); opacity:0;}
-}
-
-/* LOGO */
-.main-logo{
-  text-align:center;
-  margin-top:30px;
-  font-size:40px;
-  color:#1b4332;
-}
-
-/* ===== NAVBAR FC ===== */
-.hover-zone{
-  position:fixed;
-  top:0;
-  width:100%;
-  height:25px;
-  z-index:999;
-}
-
-.navbar{
-  position:fixed;
-  top:-80px;
-  left:0;
-  width:100%;
-
-  display:flex;
-  justify-content:center;
-  gap:30px;
-
-  padding:20px;
-
-  background:rgba(255,255,255,0.2);
-  backdrop-filter:blur(15px);
-
-  transition:0.4s;
-  z-index:998;
-
-  position:fixed;
-}
-
-/* HIỆN NAVBAR */
-.hover-zone:hover + .navbar,
-.navbar:hover{
-  top:0;
-}
-
-/* THANH TRÊN NAVBAR (FC) */
-.fc-top-bar{
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:6px;
-  overflow:hidden;
-}
-
-.fc-top-bar::before{
-  content:"";
-  position:absolute;
-  width:40%;
-  height:100%;
-  background:linear-gradient(90deg,#1b4332,#2d6a4f,#52b788);
-  border-radius:10px;
-  animation:fcMove 2s infinite alternate;
-}
-
-@keyframes fcMove{
-  from{ left:-20%; }
-  to{ left:80%; }
-}
-
-/* MENU */
-.navbar a{
-  text-decoration:none;
-  color:#1b4332;
-  font-weight:bold;
-  padding:10px 20px;
-  border-radius:20px;
-  transition:0.3s;
-}
-
-.navbar a:hover{
-  background:#2d6a4f;
-  color:white;
-}
-
-/* ===== THANH TRÊN MODEL ===== */
-.fc-bar{
-  height:6px;
-  width:100%;
-  background:rgba(0,0,0,0.1);
-  border-radius:10px;
-  overflow:hidden;
-  margin-bottom:10px;
-}
-
-.fc-bar::before{
-  content:"";
-  display:block;
-  height:100%;
-  width:60%;
-  background:linear-gradient(90deg,#1b4332,#2d6a4f,#40916c);
-  border-radius:10px;
-  animation:moveBar 2s infinite alternate;
-}
-
-@keyframes moveBar{
-  from{ transform:translateX(-30%); }
-  to{ transform:translateX(30%); }
-}
-
-/* CONTENT */
-.home{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:70vh;
-}
-
-.home-box{
-  background:rgba(255,255,255,0.15);
-  padding:40px;
-  border-radius:25px;
-  backdrop-filter:blur(15px);
-  text-align:center;
-}
-
-/* MODELS */
-.models{
-  display:flex;
-  gap:20px;
-  margin-top:20px;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-
-.model-item{
-  width:250px;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <title>Green Đồng Nai</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
-<!-- LÁ -->
 <div class="leaves">
-<span></span><span></span><span></span>
-<span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
 </div>
 
-<!-- HOVER -->
 <div class="hover-zone"></div>
-
-<!-- NAVBAR -->
 <nav class="navbar">
   <div class="fc-top-bar"></div>
-
   <a href="#">Trang chủ</a>
   <a href="#">Phân loại rác</a>
   <a href="#">Chụp ảnh</a>
@@ -237,44 +25,55 @@ body::before{
   <a href="#">Tài khoản</a>
 </nav>
 
-<!-- LOGO -->
 <h1 class="main-logo">🌿 Green Đồng Nai</h1>
 
-<!-- CONTENT -->
 <section class="home">
   <div class="home-box">
+    <h2>Tổng quan Hệ thống</h2>
+    <p style="margin-bottom: 20px; color: #1b4332;">Dữ liệu rác thải được phân loại & Hoạt động cộng đồng</p>
 
-    <h2>Hệ thống AI môi trường</h2>
-    <p>Chọn chức năng bên dưới</p>
-
-    <div class="models">
-
-      <!-- CAMERA -->
-      <div class="model-item">
-        <div class="fc-bar"></div>
-        <model-viewer 
-        src="https://raw.githubusercontent.com/longcaohuy2012-sudo/GreenDongNai/main/static/3Dmodels/CAMERA_model.glb"
-        auto-rotate camera-controls
-        style="width:100%; height:250px;">
-        </model-viewer>
-        <p>📷 Chụp ảnh</p>
-      </div>
-
-      <!-- 3RS -->
-      <div class="model-item">
-        <div class="fc-bar"></div>
-        <model-viewer 
-        src="https://raw.githubusercontent.com/longcaohuy2012-sudo/GreenDongNai/main/static/3Dmodels/3RS_model.glb"
-        auto-rotate camera-controls
-        style="width:100%; height:250px;">
-        </model-viewer>
-        <p>♻️ Phân loại rác</p>
-      </div>
-
+    <div class="chart-container">
+      <canvas id="myChart"></canvas>
     </div>
 
+    <div class="gallery-grid">
+      <div class="gallery-item">
+        <img src="{{ url_for('static', filename='images/image_98e98b.jpg') }}" alt="Hồ Trị An">
+        <div class="quote-overlay"><p>"Màu xanh là màu của sự sống, và chúng ta là những người giữ lửa cho màu xanh ấy."</p></div>
+      </div>
+      <div class="gallery-item">
+        <img src="{{ url_for('static', filename='images/image_98ea66.jpg') }}" alt="Tình nguyện viên">
+        <div class="quote-overlay"><p>"Sức mạnh của một cộng đồng không nằm ở chỗ họ có thể làm gì, mà nằm ở chỗ họ sẵn sàng làm gì." - Jane Goodall</p></div>
+      </div>
+      <div class="gallery-item">
+        <img src="{{ url_for('static', filename='images/image_98eda8.jpg') }}" alt="Cây cổ thụ">
+        <div class="quote-overlay"><p>"Hãy để những cánh rừng già thì thầm câu chuyện của chúng, và chúng ta là người lắng nghe."</p></div>
+      </div>
+      <div class="gallery-item">
+        <img src="{{ url_for('static', filename='images/image_98ee67.jpg') }}" alt="Trẻ em">
+        <div class="quote-overlay"><p>"Trẻ em là những mầm non, và chúng ta là những người làm vườn, hãy gieo trồng tình yêu thiên nhiên vào lòng chúng." - Mahatma Gandhi</p></div>
+      </div>
+    </div>
   </div>
 </section>
+
+<script>
+  const ctx = document.getElementById('myChart').getContext('2d');
+  new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: ['Rác tái chế', 'Rác vô cơ', 'Rác hữu cơ', 'Rác nguy hại'],
+          datasets: [{
+              label: 'Số lượng ảnh rác đã được hệ thống của chúng tôi quét qua (tấm ảnh)',
+              data: [976, 1324, 1200, 167], 
+              backgroundColor: ['#2d6a4f', '#52b788', '#b7e4c7', '#ff4d4d'],
+              borderWidth: 1,
+              borderRadius: 5
+          }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+</script>
 
 </body>
 </html>
