@@ -78,7 +78,12 @@ def phan_loai():
 def get_stats():
     # Trả về dữ liệu thực từ file stats.json cho biểu đồ
     return jsonify(get_stats_data())
-
+@app.route('/debug/users')
+def debug_users():
+    if os.path.exists(USER_FILE):
+        with open(USER_FILE, 'r', encoding='utf-8') as f:
+            return f.read()
+    return "File không tồn tại!"
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
