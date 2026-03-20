@@ -5,13 +5,26 @@ box-sizing:border-box;
 font-family:Arial, sans-serif;
 }
 
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #52B788; 
+    border-radius: 10px;
+}
+
 body{
-height:100vh;
+  min-height: 100vh;
+  overflow-y: auto; 
 display:flex;
 justify-content:center;
 align-items:center;
 background:linear-gradient(135deg,#b7e4c7,#95d5b2,#74c69d);
-overflow:hidden;
 position:relative;
 }
 
@@ -77,6 +90,10 @@ box-shadow:0 20px 40px rgba(0,0,0,0.2);
 }
 
 .login-card h2{
+
+max-height: 80vh;
+overflow-y: auto;
+padding-right: 10px;
 color:#1b4332;
 margin-bottom:30px;
 font-size:30px;

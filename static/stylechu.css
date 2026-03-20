@@ -33,23 +33,35 @@ model-viewer {
     --progress-bar-color: #2d6a4f;
 }
 
-/* Đảm bảo hiển thị tốt trên điện thoại */
+/* hiển thị web cho điện thoại(có thể bỏ do chx cần thiết)*/
 @media (max-width: 600px) {
     .model-container {
         width: 120px;
         height: 120px;
     }
 }
+/* Tay cuộn */
+::-webkit-scrollbar {
+    width: 8px;
+}
 
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #52B788; 
+    border-radius: 10px;
+}
 
 
 body{
 
-  height:100vh;
+  min-height: 100vh;
+
+  overflow-y: auto; 
 
   background:linear-gradient(135deg,#b7e4c7,#95d5b2,#74c69d);
-
-  overflow:hidden;
 
   position:relative;
 
