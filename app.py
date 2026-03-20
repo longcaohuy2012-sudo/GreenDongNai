@@ -1,11 +1,8 @@
 import os
 import time
 import json
-from flask import Flask, flash, render_template, request, redirect, url_for, session
+from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify # Thêm jsonify vào đây
 from werkzeug.utils import secure_filename
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-USER_FILE = os.path.join(BASE_DIR, 'users.json')
 
 app = Flask(__name__)
 app.secret_key = 'greendongnai_2026'
@@ -13,13 +10,14 @@ app.secret_key = 'greendongnai_2026'
 # 1. CẤU HÌNH ĐƯỜNG DẪN
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+USER_FILE = os.path.join(BASE_DIR, 'users.json')
+STATS_FILE = os.path.join(BASE_DIR, 'stats.json') # File lưu số liệu rác
+
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-USER_FILE = os.path.join(BASE_DIR, 'users.json')
-
-# 2. CÁC HÀM BỔ TRỢ
+# 2. CÁC HÀM BỔ TRỢ DỮ LIỆU
 def get_users():
     if not os.path.exists(USER_FILE):
         with open(USER_FILE, 'w', encoding='utf-8') as f: 
@@ -29,39 +27,43 @@ def get_users():
         with open(USER_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
             return data if isinstance(data, dict) else {}
-    except:
-        return {}
+    except: return {}
 
 def save_users(users):
     with open(USER_FILE, 'w', encoding='utf-8') as f:
         json.dump(users, f, ensure_ascii=False, indent=4)
 
-# 3.ROUTES
-@app.route('/api/stats')
-def get_stats():
-    # Giả sử bạn lấy dữ liệu từ file stats.json hoặc database
-    data = {
-        "labels": ["Rác tái chế", "Rác vô cơ", "Rác hữu cơ", "Rác nguy hại"],
-        "counts": [1500, 1000, 667, 500],
-        "total": 3667
-    }
-    return jsonify(data)
+# --- HÀM XỬ LÝ SỐ LIỆU THỐNG KÊ ---
+def get_stats_data():
+    if not os.path.exists(STATS_FILE):
+        # Khởi tạo con số 3667 ban đầu của Long
+        initial_data = {"labels": ["Rác tái chế", "Rác vô cơ", "Rác hữu cơ", "Rác nguy hại"], "counts": [1500, 1000, 667, 500], "total": 3667}
+        with open(STATS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(initial_data, f)
+        return initial_data
+    with open(STATS_FILE, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-@app.route('/phan_loai')
-def phan_loai():
-    return "Trang hướng dẫn phân loại đang được xây dựng!"
+def update_stats(waste_type_index):
+    data = get_stats_data()
+    data['counts'][waste_type_index] += 1 # Tăng loại rác tương ứng
+    data['total'] += 1 # Tăng tổng số
+    with open(STATS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f)
 
-@app.route('/landing', methods=['GET', 'POST'])
-def landing():
-    if request.method == 'POST':
-        return redirect(url_for('login'))
-    return render_template('landing.html')
-
+# 3. ROUTES
 @app.route('/')
 def home():
     if 'user' not in session: 
         return redirect(url_for('landing'))
-    return render_template('trang_chu.html')
+    stats = get_stats_data()
+    # Truyền số total ra trang chủ để hiển thị
+    return render_template('trang_chu.html', total_scans=stats['total'])
+
+@app.route('/api/stats')
+def get_stats():
+    # Trả về dữ liệu thực từ file stats.json cho biểu đồ
+    return jsonify(get_stats_data())
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -80,11 +82,6 @@ def signup():
             flash("Tên tài khoản này đã tồn tại!")
             return redirect(url_for('signup'))
             
-        existing_emails = [info.get('email') for info in users.values()]
-        if email in existing_emails:
-            flash("Email này đã được sử dụng!")
-            return redirect(url_for('signup'))
-
         if password != confirm:
             flash("Mật khẩu xác nhận không khớp!")
             return redirect(url_for('signup'))
@@ -93,7 +90,6 @@ def signup():
         save_users(users)
         flash("Đăng ký thành công! Hãy đăng nhập.")
         return redirect(url_for('login'))
-        
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -122,40 +118,41 @@ def login():
         
         flash("Tên đăng nhập/Email hoặc mật khẩu không đúng!")
         return redirect(url_for('login'))
-        
     return render_template('login.html')
 
 @app.route('/nhan_dien_anh', methods=['POST'])
 def AI_image():
     if 'user' not in session: return redirect(url_for('login'))
     
-    if 'file' not in request.files:
-        flash('Không tìm thấy file ảnh!')
-        return redirect(url_for('home'))
-    
-    file = request.files['file']
-    if file.filename == '':
+    file = request.files.get('file')
+    if not file or file.filename == '':
         flash('Bạn chưa chọn ảnh.')
         return redirect(url_for('home'))
 
-    if file:
-        ext = file.filename.rsplit('.', 1)[-1].lower()
-        filename = secure_filename(f"trash_{int(time.time())}.{ext}")
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+    # Lưu ảnh
+    ext = file.filename.rsplit('.', 1)[-1].lower()
+    filename = secure_filename(f"trash_{int(time.time())}.{ext}")
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        result = {
-            "label": "Giấy vụn",
-            "type": "Rác tái chế (nếu sạch)",
-            "action": "Hãy bỏ vào thùng rác màu xanh dương nếu giấy không dính dầu mỡ nhé!"
-        }
-        return render_template('ket_qua.html', result=result, img_path=filename)
+    # Giả lập AI nhận diện được "Rác tái chế" (index 0 trong mảng counts)
+    update_stats(0) 
+
+    result = {
+        "label": "Giấy vụn",
+        "type": "Rác tái chế",
+        "action": "Hãy bỏ vào thùng rác màu xanh dương nhé!"
+    }
+    return render_template('ket_qua.html', result=result, img_path=filename)
+
+@app.route('/landing')
+def landing():
+    return render_template('landing.html')
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
-#---chạy web giữa file---
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)        
+    app.run(host='0.0.0.0', port=port)
