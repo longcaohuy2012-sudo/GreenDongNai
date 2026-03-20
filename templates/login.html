@@ -1,73 +1,55 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - Green Đồng Nai</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='loginstyle.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng nhập</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='loginstyle.css') }}">
 </head>
-<body>
-    <div class="leaves">
-        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-    </div>
 
-    <div class="login-card">
+<body>
+
+<div class="leaves">
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+</div>
+
+<div class="login-card">
         {% with messages = get_flashed_messages() %}
           {% if messages %}
-            <div class="error-container">
             {% for message in messages %}
-              <div class="error-msg">
-                <i class="fas fa-leaf-fall" style="margin-right: 8px; color: #ffeb3b;"></i>
+              <div style="background: rgba(255, 77, 77, 0.2); color: #fff; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; border: 1px solid #ff4d4d; text-align: center;">
                 {{ message }}
               </div>
             {% endfor %}
-            </div>
           {% endif %}
         {% endwith %}
 
-        <h2>Đăng nhập 🌿</h2>
-        
-        <form action="{{ url_for('login') }}" method="POST">
-            <div class="input-box">
-                <input type="text" name="username" placeholder=" " required>
-                <label>Tên đăng nhập hoặc Email</label>
-            </div>
+<h2>Login</h2>
 
-            <div class="input-box">
-                <input type="password" name="password" placeholder=" " required>
-                <label>Mật khẩu</label>
-            </div>
+<div class="input-box">
+<input type="email" placeholder=" " required>
+<label>Username/Email</label>
+</div>
 
-            <button type="submit" class="login-btn">Vào hệ thống</button>
-        </form>
+<div class="input-box">
+<input type="password" placeholder=" " required>
+<label>Password</label>
+</div>
 
-        <p class="signup-text">
-            Chưa có tài khoản ư? 
-            <a href="{{ url_for('signup') }}" style="color: #fff; font-weight: bold; text-decoration: underline;">Đăng ký ngay</a>
-        </p>
-    </div>
+<button class="login-btn">Login</button>
 
-    <style>
-        .error-container {
-            background: rgba(255, 77, 77, 0.15);
-            border-left: 4px solid #ff4d4d;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 20px;
-            animation: shake 0.5s ease-in-out;
-        }
-        .error-msg {
-            color: #e6bfbf;
-            font-size: 14px;
-            text-align: left;
-            margin: 5px 0;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-    </style>
+<p class="signup">
+Don't have an account?
+<a href="#">Sign up</a>
+</p>
+
+</div>
+
 </body>
 </html>
