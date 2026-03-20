@@ -2,78 +2,79 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Green Đồng Nai</title>
-    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
-
-<div class="leaves">
-  <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-</div>
-
-<div class="hover-zone"></div>
-<nav class="navbar">
-  <div class="fc-top-bar"></div>
-  <a href="#">Trang chủ</a>
-  <a href="#">Phân loại rác</a>
-  <a href="#">Chụp ảnh</a>
-  <a href="#">Thống kê</a>
-  <a href="#">Tài khoản</a>
-</nav>
-
-<h1 class="main-logo">🌿 Green Đồng Nai</h1>
-
-<section class="home">
-  <div class="home-box">
-    <h2>Tổng quan Hệ thống</h2>
-    <p style="margin-bottom: 20px; color: #1b4332;">Dữ liệu rác thải được phân loại & Hoạt động cộng đồng</p>
-
-    <div class="chart-container">
-      <canvas id="myChart"></canvas>
+    <div class="leaves">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
     </div>
 
-    <div class="gallery-grid">
-      <div class="gallery-item">
-        <img src="{{ url_for('static', filename='images/image_98e98b.jpg') }}" alt="Hồ Trị An">
-        <div class="quote-overlay"><p>"Màu xanh là màu của sự sống, và chúng ta là những người giữ lửa cho màu xanh ấy."</p></div>
-      </div>
-      <div class="gallery-item">
-        <img src="{{ url_for('static', filename='images/image_98ea66.jpg') }}" alt="Tình nguyện viên">
-        <div class="quote-overlay"><p>"Sức mạnh của một cộng đồng không nằm ở chỗ họ có thể làm gì, mà nằm ở chỗ họ sẵn sàng làm gì." - Jane Goodall</p></div>
-      </div>
-      <div class="gallery-item">
-        <img src="{{ url_for('static', filename='images/image_98eda8.jpg') }}" alt="Cây cổ thụ">
-        <div class="quote-overlay"><p>"Hãy để những cánh rừng già thì thầm câu chuyện của chúng, và chúng ta là người lắng nghe."</p></div>
-      </div>
-      <div class="gallery-item">
-        <img src="{{ url_for('static', filename='images/image_98ee67.jpg') }}" alt="Trẻ em">
-        <div class="quote-overlay"><p>"Trẻ em là những mầm non, và chúng ta là những người làm vườn, hãy gieo trồng tình yêu thiên nhiên vào lòng chúng." - Mahatma Gandhi</p></div>
-      </div>
-    </div>
-  </div>
-</section>
+    <div class="hover-zone"></div>
+    <nav class="navbar">
+        <div class="fc-top-bar"></div>
+        <a href="#">Trang chủ</a>
+        <a href="#">Phân loại rác</a>
+        <a href="#">Chụp ảnh</a>
+        <a href="#">Thống kê</a>
+        <a href="#">Tài khoản</a>
+    </nav>
 
-<script>
-  const ctx = document.getElementById('myChart').getContext('2d');
-  new Chart(ctx, {
-      type: 'bar',
-      data: {
-          labels: ['Rác tái chế', 'Rác vô cơ', 'Rác hữu cơ', 'Rác nguy hại'],
-          datasets: [{
-              label: 'Số lượng ảnh rác đã được hệ thống của chúng tôi quét qua (tấm ảnh)',
-              data: [976, 1324, 1200, 167], 
-              backgroundColor: ['#2d6a4f', '#52b788', '#b7e4c7', '#ff4d4d'],
-              borderWidth: 1,
-              borderRadius: 5
-          }]
-      },
-      options: { responsive: true, scales: { y: { beginAtZero: true } } }
-  });
-</script>
+    <h1 class="main-logo">🌿 Green Đồng Nai</h1>
 
+    <section class="home">
+        <div class="home-box">
+            <h2>Tổng quan Hệ thống</h2>
+            <p style="margin-bottom: 20px; color: #1b4332;">Dữ liệu rác thải được phân loại & Hoạt động cộng đồng</p>
+
+            <div class="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="{{ url_for('static', filename='images/image_98e98b.jpg') }}" alt="Hồ Trị An" loading="lazy">
+                    <div class="quote-overlay"><p>"Màu xanh là màu của sự sống, và chúng ta là những người giữ lửa cho màu xanh ấy."</p></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="{{ url_for('static', filename='images/image_98ea66.jpg') }}" alt="Tình nguyện viên" loading="lazy">
+                    <div class="quote-overlay"><p>"Sức mạnh của một cộng đồng nằm ở chỗ họ sẵn sàng làm gì." - Jane Goodall</p></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="{{ url_for('static', filename='images/image_98eda8.jpg') }}" alt="Cây cổ thụ" loading="lazy">
+                    <div class="quote-overlay"><p>"Hãy để những cánh rừng già thì thầm câu chuyện của chúng, và chúng ta là người lắng nghe."</p></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="{{ url_for('static', filename='images/image_98ee67.jpg') }}" alt="Trẻ em" loading="lazy">
+                    <div class="quote-overlay"><p>"Trẻ em là những mầm non, hãy gieo trồng tình yêu thiên nhiên vào lòng chúng." - Mahatma Gandhi</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Rác tái chế', 'Rác vô cơ', 'Rác hữu cơ', 'Rác nguy hại'],
+                datasets: [{
+                    label: 'Số lượng ảnh rác đã quét (tấm)',
+                    data: [976, 1324, 1200, 167], 
+                    backgroundColor: ['#2d6a4f', '#52b788', '#b7e4c7', '#ff4d4d'],
+                    borderWidth: 0,
+                    borderRadius: 8
+                }]
+            },
+            options: { 
+                responsive: true,
+                maintainAspectRatio: false, // Giúp biểu đồ linh hoạt chiều cao
+                scales: { y: { beginAtZero: true } } 
+            }
+        });
+    </script>
 </body>
 </html>
