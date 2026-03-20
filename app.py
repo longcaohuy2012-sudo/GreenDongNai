@@ -70,6 +70,10 @@ def home():
     # Truyền số total ra trang chủ để hiển thị
     return render_template('trang_chu.html', total_scans=stats['total'])
 
+@app.route('/phan_loai')
+def phan_loai():
+    return render_template('phan_loai.html')
+
 @app.route('/api/stats')
 def get_stats():
     # Trả về dữ liệu thực từ file stats.json cho biểu đồ
