@@ -37,6 +37,15 @@ def save_users(users):
         json.dump(users, f, ensure_ascii=False, indent=4)
 
 # 3.ROUTES
+@app.route('/api/stats')
+def get_stats():
+    # Giả sử bạn lấy dữ liệu từ file stats.json hoặc database
+    data = {
+        "labels": ["Rác tái chế", "Rác vô cơ", "Rác hữu cơ", "Rác nguy hại"],
+        "counts": [1500, 1000, 667, 500],
+        "total": 3667
+    }
+    return jsonify(data)
 
 @app.route('/phan_loai')
 def phan_loai():
