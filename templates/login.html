@@ -26,9 +26,8 @@
           {% endif %}
         {% endwith %}
 
-        <h2>Mừng bạn trở lại! 🌿</h2>
-        <p style="color: #eee; font-size: 0.9rem; margin-bottom: 20px;">Đăng nhập để cùng bảo vệ môi trường nhé.</p>
-
+        <h2>Đăng nhập 🌿</h2>
+        
         <form action="{{ url_for('login') }}" method="POST">
             <div class="input-box">
                 <input type="text" name="username" placeholder=" " required>
@@ -59,7 +58,7 @@
             animation: shake 0.5s ease-in-out;
         }
         .error-msg {
-            color: #fff;
+            color: #e6bfbf;
             font-size: 14px;
             text-align: left;
             margin: 5px 0;
