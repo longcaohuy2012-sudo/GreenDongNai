@@ -1,22 +1,44 @@
 /* RESET & FONT HIỆN ĐẠI */
 *{ margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
 
-body{
-    min-height:100vh; 
-    background:linear-gradient(135deg,#b7e4c7,#95d5b2,#74c69d);
-    overflow-x:hidden; 
-    overflow-y:auto; 
-    position:relative;
+body {
+    min-height: 100vh;
+    /* Nền gradient xanh mướt đặc trưng của Green Đồng Nai */
+    background: linear-gradient(135deg, #b7e4c7, #95d5b2, #74c69d);
+    background-attachment: fixed; /* Cực kỳ quan trọng: Giữ nền cố định khi cuộn trang */
+    overflow-x: hidden; 
+    overflow-y: auto; 
+    position: relative;
+    margin: 0;
 }
 
 /* ÁNH SÁNG MẶT TRỜI - Thêm pointer-events: none */
 body::before{
+
     content:""; position:absolute; width:600px; height:600px;
+
     background:radial-gradient(circle,rgba(255,255,255,0.6),transparent 70%);
+
     top:-150px; left:-150px; filter:blur(40px);
+
     animation:sunmove 8s ease-in-out infinite alternate;
-    pointer-events: none; 
+
+    pointer-events: none;
+
     z-index: 0;
+
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    /* Tạo hiệu ứng hạt li ti rất nhẹ */
+    background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
+    opacity: 0.1;
+    pointer-events: none;
+    z-index: 1; /* Nằm trên gradient nhưng dưới nội dung */
 }
 @keyframes sunmove{ 0%{transform:translate(0,0);} 100%{transform:translate(100px,80px);} }
 
