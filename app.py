@@ -20,30 +20,40 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # 2. CÁC HÀM BỔ TRỢ DỮ LIỆU
 def get_users():
     if not os.path.exists(USER_FILE):
-        with open(USER_FILE, 'w', encoding='utf-8') as f: 
-            json.dump({}, f)
+        save_users({})
         return {}
     try:
         with open(USER_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            return data if isinstance(data, dict) else {}
-    except: return {}
-
+            content = f.read().strip() # Đọc và loại bỏ khoảng trắng
+            if not content: # Nếu file rỗng tuếch
+                return {}
+            return json.loads(content)
+    except Exception as e:
+        print(f"Lỗi đọc file: {e}")
+        return {}
 def save_users(users):
     with open(USER_FILE, 'w', encoding='utf-8') as f:
         json.dump(users, f, ensure_ascii=False, indent=4)
 
 # --- HÀM XỬ LÝ SỐ LIỆU THỐNG KÊ ---
 def get_stats_data():
+    initial_stats = {
+        "labels": ["Rác tái chế", "Rác vô cơ", "Rác hữu cơ", "Rác nguy hại"],
+        "counts": [1500, 1000, 667, 500],
+        "total": 3667
+    }
     if not os.path.exists(STATS_FILE):
-        # Khởi tạo con số 3667 ban đầu của Long
-        initial_data = {"labels": ["Rác tái chế", "Rác vô cơ", "Rác hữu cơ", "Rác nguy hại"], "counts": [1500, 1000, 667, 500], "total": 3667}
         with open(STATS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(initial_data, f)
-        return initial_data
-    with open(STATS_FILE, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
+            json.dump(initial_stats, f, ensure_ascii=False, indent=4)
+        return initial_stats
+    
+    try:
+        with open(STATS_FILE, 'r', encoding='utf-8') as f:
+            content = f.read().strip()
+            if not content: return initial_stats
+            return json.loads(content)
+    except:
+        return initial_stats
 def update_stats(waste_type_index):
     data = get_stats_data()
     data['counts'][waste_type_index] += 1 # Tăng loại rác tương ứng
