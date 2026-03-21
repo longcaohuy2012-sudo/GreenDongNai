@@ -93,22 +93,52 @@ body::after {
 .navbar a{ text-decoration:none; color:#1b4332; font-weight:bold; padding:10px 20px; border-radius:20px; transition:0.3s; }
 .navbar a:hover{ background:#2d6a4f; color:white; transform: translateY(-2px); }
 
-/* CONTENT BOX */
-.home{
-    display:flex; justify-content:center; padding: 40px 20px 100px 20px; position: relative; z-index: 5;
-}
-.home-box{
-    background:rgba(255,255,255,0.18); padding:40px; border-radius:30px;
-    backdrop-filter:blur(25px); text-align:center;
-    width: 100%; max-width: 950px; 
-    border: 1px solid rgba(255,255,255,0.4);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+/* CONTAINER BỌC NGOÀI ĐỂ CĂN GIỮA */
+.home-container {
+    display: flex;
+    flex-direction: column; /* Xếp chồng 2 khối lên nhau */
+    gap: 40px; /* Khoảng cách giữa 2 khối kính mờ */
+    width: 100%;
+    max-width: 950px;
+    align-items: center;
 }
 
-/* BIỂU ĐỒ */
+.home {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px 100px 20px;
+    position: relative;
+    z-index: 5;
+}
+
+.home-box {
+    background: rgba(255, 255, 255, 0.15); /* Giảm độ đục một chút cho thanh thoát */
+    padding: 40px;
+    border-radius: 30px;
+    backdrop-filter: blur(20px); /* Hiệu ứng kính mờ */
+    -webkit-backdrop-filter: blur(20px);
+    text-align: center;
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+/* Hiệu ứng nhẹ khi hover vào từng khối */
+.home-box:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Tùy chỉnh riêng cho khối Gallery nếu cần */
+.gallery-box {
+    margin-top: 10px; 
+}
+
+/* Điều chỉnh lại biểu đồ để khớp với khung mới */
 .chart-container {
-    width: 100%; height: 350px; margin: 30px auto; background: rgba(255,255,255,0.4);
-    padding: 20px; border-radius: 20px; position: relative;
+    background: rgba(255, 255, 255, 0.3); /* Làm nổi bật vùng biểu đồ */
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* GALLERY ẢNH */
