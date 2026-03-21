@@ -41,6 +41,7 @@ model-viewer {
     }
 }
 /* Tay cuộn */
+
 ::-webkit-scrollbar {
     width: 8px;
 }

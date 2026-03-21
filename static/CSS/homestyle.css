@@ -3,7 +3,6 @@
 
 body {
     min-height: 100vh;
-    /* Nền gradient xanh mướt đặc trưng của Green Đồng Nai */
     background: linear-gradient(135deg, #b7e4c7, #95d5b2, #74c69d);
     background-attachment: fixed; /* Cực kỳ quan trọng: Giữ nền cố định khi cuộn trang */
     overflow-x: hidden; 
@@ -38,6 +37,20 @@ body::after {
     pointer-events: none;
     z-index: 99;
 }
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #52B788; 
+    border-radius: 10px;
+}
+
 @keyframes sunmove{ 0%{transform:translate(0,0);} 100%{transform:translate(100px,80px);} }
 
 /* LÁ RƠI - Thêm pointer-events: none */
