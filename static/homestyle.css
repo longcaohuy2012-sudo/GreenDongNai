@@ -15,7 +15,7 @@ body {
 /* ÁNH SÁNG MẶT TRỜI - Thêm pointer-events: none */
 body::before{
 
-    content:""; position:absolute; width:600px; height:600px;
+    content:""; position: fixed; width:600px; height:600px;
 
     background:radial-gradient(circle,rgba(255,255,255,0.6),transparent 70%);
 
@@ -34,11 +34,10 @@ body::after {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    /* Tạo hiệu ứng hạt li ti rất nhẹ */
     background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
     opacity: 0.1;
     pointer-events: none;
-    z-index: 1; /* Nằm trên gradient nhưng dưới nội dung */
+    z-index: 99;
 }
 @keyframes sunmove{ 0%{transform:translate(0,0);} 100%{transform:translate(100px,80px);} }
 
