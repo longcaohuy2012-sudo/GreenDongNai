@@ -93,7 +93,7 @@ body::after {
 .navbar a{ text-decoration:none; color:#1b4332; font-weight:bold; padding:10px 20px; border-radius:20px; transition:0.3s; }
 .navbar a:hover{ background:#2d6a4f; color:white; transform: translateY(-2px); }
 
-/* CONTAINER BỌC NGOÀI ĐỂ CĂN GIỮA */
+/* các khối kính mờ*/
 .home-container {
     display: flex;
     flex-direction: column; /* Xếp chồng 2 khối lên nhau */
