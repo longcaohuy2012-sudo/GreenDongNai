@@ -146,121 +146,95 @@ body::after {
     z-index: 20;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
-/* 4. HANDBOOK LAYOUT (PHẪU THUẬT CHÍNH) */
 .handbook-section {
-    display: flex;
-    justify-content: center;
-    padding: 60px 20px;
+    display: flex; justify-content: center; padding: 40px 20px 100px;
 }
 
 .handbook-container {
-    display: flex;
-    flex-direction: column;
-    gap: 60px;
-    width: 100%;
-    max-width: 1100px;
+    display: flex; flex-direction: column; gap: 50px;
+    width: 100%; max-width: 1100px;
 }
 
-/* Style chung cho các loại Card */
+/* Style chung cho Card kính mờ */
 [class*="-card"] {
-    display: flex;
-    align-items: center;
-    gap: 50px;
-    background: rgba(255, 255, 255, 0.15);
-    padding: 40px;
-    border-radius: 40px;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    display: flex; align-items: center; gap: 50px;
+    padding: 40px; border-radius: 40px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
     transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform;
 }
 
 [class*="-card"]:hover {
-    transform: translateY(-10px);
-    background: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-8px);
+    border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* ✨ HIỆU ỨNG ĐẢO CHIỀU (Z-LAYOUT) */
-/* Khối thứ 2 (Tái chế) và thứ 4 (Nguy hại) sẽ đảo ảnh sang phải */
-.recycling-card, .hazardous-card {
-    flex-direction: row-reverse;
-}
+/* Z-Layout: Đảo chiều ảnh cho card số 2 và 4 */
+.recycling-card, .hazardous-card { flex-direction: row-reverse; }
 
-/* Hình ảnh */
 .gallery-item {
-    flex: 1;
-    height: 300px;
-    border-radius: 25px;
-    overflow: hidden;
-    border: 3px solid rgba(255, 255, 255, 0.4);
+    flex: 1; height: 320px; border-radius: 25px;
+    overflow: hidden; border: 4px solid rgba(255, 255, 255, 0.3);
 }
 
 .gallery-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: 0.6s;
+    width: 100%; height: 100%; object-fit: cover; transition: 0.6s;
 }
 
-[class*="-card"]:hover img {
-    transform: scale(1.1);
-}
+[class*="-card"]:hover img { transform: scale(1.08); }
 
-/* Nội dung văn bản */
-.card-content {
-    flex: 1.2;
-}
+.card-content { flex: 1.3; }
+.card-content h2 { font-size: 2.2rem; color: #1b4332; margin-bottom: 15px; }
 
-.card-content h2 {
-    font-size: 2.2rem;
-    color: #1b4332;
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.info-list {
-    list-style: none;
-}
-
+.info-list { list-style: none; }
 .info-list li {
-    font-size: 1.1rem;
-    color: #1b4332;
-    margin-bottom: 15px;
-    line-height: 1.6;
-    padding-left: 30px;
-    position: relative;
+    font-size: 1.1rem; color: #1b4332; margin-bottom: 12px;
+    line-height: 1.6; padding-left: 35px; position: relative;
 }
 
-/* Custom Bullet points bằng Icon */
-.info-list li::before {
-    content: "🌱";
-    position: absolute;
-    left: 0;
-    top: 0;
+/* Icon gạch đầu dòng mặc định */
+.info-list li::before { position: absolute; left: 0; top: 0; font-size: 1.2rem; }
+
+/*5. CHI TIẾT MÀU SẮC TỪNG LOẠI*/
+/* Hữu cơ */
+.organic-card { 
+    border-left: 10px solid #2d6a4f;
+    background: linear-gradient(135deg, rgba(45, 106, 79, 0.15), rgba(255, 255, 255, 0.1));
 }
+.organic-card:hover { box-shadow: 0 15px 40px rgba(45, 106, 79, 0.2); }
+.organic-card .info-list li::before { content: "✦"; }
 
-/* 5. ĐẶC TRƯNG MÀU SẮC RIÊNG CHO TỪNG LOẠI */
-.organic-card { border-left: 8px solid #2d6a4f; }
-.recycling-card { border-left: 8px solid #f8f9fa; }
-.inorganic-card { border-left: 8px solid #74c69d; }
-.hazardous-card { border-left: 8px solid #d90429; }
+/* Tái chế */
+.recycling-card { 
+    border-left: 10px solid #0077b6;
+    background: linear-gradient(135deg, rgba(0, 119, 182, 0.15), rgba(255, 255, 255, 0.1));
+}
+.recycling-card:hover { box-shadow: 0 15px 40px rgba(0, 119, 182, 0.2); }
+.recycling-card .info-list li::before { content: "✦"; }
 
-/* 6. RESPONSIVE (Cho điện thoại) */
+/* Vô cơ */
+.inorganic-card { 
+    border-left: 10px solid #e67e22;
+    background: linear-gradient(135deg, rgba(230, 126, 34, 0.15), rgba(255, 255, 255, 0.1));
+}
+.inorganic-card:hover { box-shadow: 0 15px 40px rgba(230, 126, 34, 0.2); }
+.inorganic-card .info-list li::before { content: "✦"; }
+
+/* Nguy hại */
+.hazardous-card { 
+    border-left: 10px solid #d90429;
+    background: linear-gradient(135deg, rgba(217, 4, 41, 0.15), rgba(255, 255, 255, 0.1));
+}
+.hazardous-card:hover { box-shadow: 0 15px 40px rgba(217, 4, 41, 0.3); }
+.hazardous-card .info-list li::before { content: "✦"; }
+
+/*6. RESPONSIVE (MOBILE)*/
 @media (max-width: 900px) {
     [class*="-card"], .recycling-card, .hazardous-card {
-        flex-direction: column;
-        padding: 30px;
-        text-align: center;
+        flex-direction: column; padding: 25px; text-align: center;
     }
-    
-    .gallery-item {
-        width: 100%;
-        height: 200px;
-    }
-    
-    .info-list li {
-        text-align: left;
-    }
+    .gallery-item { width: 100%; height: 220px; }
+    .info-list li { text-align: left; font-size: 1rem; }
+    .main-logo { font-size: 2.5rem; }
 }
