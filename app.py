@@ -1,114 +1,104 @@
 import os
 import time
-import json
-from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify # Thêm jsonify vào đây
+from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_pymongo import PyMongo
+from dotenv import load_dotenv
+
+# Load biến môi trường từ file .env (khi chạy ở máy)
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'greendongnai_2026'
+# Lấy Secret Key từ env, nếu không có thì dùng mặc định (để tránh lỗi)
+app.secret_key = os.getenv('SECRET_KEY', 'Gree_Dong_Nai_2026_Cao_Huy_Long_Nguyen_Hoang_Long')
 
-# 1. CẤU HÌNH ĐƯỜNG DẪN
+# --- CẤU HÌNH DATABASE (MONGODB) ---
+app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+mongo = PyMongo(app)
+
+# --- CẤU HÌNH THƯ MỤC UPLOAD ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-USER_FILE = os.path.join(BASE_DIR, 'users.json')
-STATS_FILE = os.path.join(BASE_DIR, 'stats.json') # File lưu số liệu rác
-
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# 2. CÁC HÀM BỔ TRỢ DỮ LIỆU
-def get_users():
-    if not os.path.exists(USER_FILE):
-        save_users({})
-        return {}
-    try:
-        with open(USER_FILE, 'r', encoding='utf-8') as f:
-            content = f.read().strip() # Đọc và loại bỏ khoảng trắng
-            if not content: # Nếu file rỗng tuếch
-                return {}
-            return json.loads(content)
-    except Exception as e:
-        print(f"Lỗi đọc file: {e}")
-        return {}
-def save_users(users):
-    with open(USER_FILE, 'w', encoding='utf-8') as f:
-        json.dump(users, f, ensure_ascii=False, indent=4)
-
-# --- HÀM XỬ LÝ SỐ LIỆU THỐNG KÊ ---
+# --- HÀM BỔ TRỢ SỐ LIỆU (DATABASE VERSION) ---
 def get_stats_data():
-    initial_stats = {
-        "labels": ["Rác tái chế", "Rác vô cơ", "Rác hữu cơ", "Rác nguy hại"],
-        "counts": [1500, 1000, 667, 500],
-        "total": 3667
-    }
-    if not os.path.exists(STATS_FILE):
-        with open(STATS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(initial_stats, f, ensure_ascii=False, indent=4)
-        return initial_stats
-    
-    try:
-        with open(STATS_FILE, 'r', encoding='utf-8') as f:
-            content = f.read().strip()
-            if not content: return initial_stats
-            return json.loads(content)
-    except:
-        return initial_stats
-def update_stats(waste_type_index):
-    data = get_stats_data()
-    data['counts'][waste_type_index] += 1 # Tăng loại rác tương ứng
-    data['total'] += 1 # Tăng tổng số
-    with open(STATS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f)
+    """Lấy số liệu thống kê từ MongoDB"""
+    stats = mongo.db.statistics.find_one({"id": "global_stats"})
+    if not stats:
+        # Khởi tạo nếu chưa có dữ liệu trong DB
+        stats = {
+            "id": "global_stats",
+            "labels": ["Rác tái chế", "Rác vô cơ", "Rác hữu cơ", "Rác nguy hại"],
+            "counts": [1500, 1000, 667, 500],
+            "total": 3667
+        }
+        mongo.db.statistics.insert_one(stats)
+    return stats
 
-# 3. ROUTES
+def update_stats(index):
+    """Tăng số lượng rác theo loại"""
+    mongo.db.statistics.update_one(
+        {"id": "global_stats"},
+        {"$inc": {f"counts.{index}": 1, "total": 1}}
+    )
+
+# --- CÁC ĐƯỜNG DẪN (ROUTES) ---
+
 @app.route('/')
 def home():
     if 'user' not in session: 
         return redirect(url_for('landing'))
+    
     stats = get_stats_data()
-    # Truyền số total ra trang chủ để hiển thị
-    return render_template('trang_chu.html', total_scans=stats['total'])
+    return render_template('trang_chu.html', 
+                           total_scans=stats['total'], 
+                           username=session['user'])
 
-@app.route('/phan_loai')
-def phan_loai():
-    return render_template('phan_loai.html')
+@app.route('/landing')
+def landing():
+    return render_template('landing.html')
 
-@app.route('/api/stats')
-def get_stats():
-    # Trả về dữ liệu thực từ file stats.json cho biểu đồ
-    return jsonify(get_stats_data())
-@app.route('/debug/users')
-def debug_users():
-    if os.path.exists(USER_FILE):
-        with open(USER_FILE, 'r', encoding='utf-8') as f:
-            return f.read()
-    return "File không tồn tại!"
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        user = request.form.get('username', '').strip()
+        username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password')
         confirm = request.form.get('passwordconfirm')
-        
-        if not user or not password:
-            flash("Vui lòng điền đầy đủ thông tin!")
+
+        if not username or not password or not email:
+            flash("Vui lòng điền đầy đủ tất cả các trường!")
             return redirect(url_for('signup'))
 
-        users = get_users()
-        if user in users:
-            flash("Tên tài khoản này đã tồn tại!")
+        # Kiểm tra trùng lặp trong Database
+        existing_user = mongo.db.users.find_one({
+            "$or": [{"username": username}, {"email": email}]
+        })
+        
+        if existing_user:
+            flash("Tên đăng nhập hoặc Email đã được sử dụng!")
             return redirect(url_for('signup'))
-            
+
         if password != confirm:
             flash("Mật khẩu xác nhận không khớp!")
             return redirect(url_for('signup'))
-            
-        users[user] = {"email": email, "password": password}
-        save_users(users)
-        flash("Đăng ký thành công! Hãy đăng nhập.")
+
+        # Lưu người dùng mới với mật khẩu ĐÃ MÃ HÓA
+        hashed_password = generate_password_hash(password)
+        mongo.db.users.insert_one({
+            "username": username,
+            "email": email,
+            "password": hashed_password,
+            "created_at": time.time()
+        })
+        
+        flash("Đăng ký thành công! Chào mừng bạn gia nhập cộng đồng Xanh.")
         return redirect(url_for('login'))
+        
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -116,61 +106,60 @@ def login():
     if request.method == 'POST':
         identity = request.form.get('username', '').strip()
         password = request.form.get('password')
-        users = get_users()
-        
-        target_user = None
-        username_final = None
 
-        if identity in users:
-            target_user = users[identity]
-            username_final = identity
-        else:
-            for u_name, u_info in users.items():
-                if u_info.get('email') == identity:
-                    target_user = u_info
-                    username_final = u_name
-                    break
-        
-        if target_user and target_user.get("password") == password:
-            session['user'] = username_final
+        # Tìm người dùng theo username hoặc email
+        user = mongo.db.users.find_one({
+            "$or": [{"username": identity}, {"email": identity}]
+        })
+
+        if user and check_password_hash(user['password'], password):
+            session['user'] = user['username']
             return redirect(url_for('home'))
         
-        flash("Tên đăng nhập/Email hoặc mật khẩu không đúng!")
-        return redirect(url_for('login'))
+        flash("Sai thông tin đăng nhập hoặc mật khẩu!")
+        
     return render_template('login.html')
 
 @app.route('/nhan_dien_anh', methods=['POST'])
 def AI_image():
-    if 'user' not in session: return redirect(url_for('login'))
+    if 'user' not in session: 
+        return redirect(url_for('login'))
     
     file = request.files.get('file')
     if not file or file.filename == '':
-        flash('Bạn chưa chọn ảnh.')
+        flash('Vui lòng chọn một tấm ảnh rác để nhận diện.')
         return redirect(url_for('home'))
 
-    # Lưu ảnh
+    # Lưu file tạm thời
     ext = file.filename.rsplit('.', 1)[-1].lower()
     filename = secure_filename(f"trash_{int(time.time())}.{ext}")
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-    # Giả lập AI nhận diện được "Rác tái chế" (index 0 trong mảng counts)
+    # Giả lập AI: Ở đây mình mặc định là rác tái chế (index 0)
+    # Long có thể thay phần này bằng code gọi Model AI thực tế sau này
     update_stats(0) 
 
     result = {
-        "label": "Giấy vụn",
+        "label": "Chai nhựa nhựa PET",
         "type": "Rác tái chế",
-        "action": "Hãy bỏ vào thùng rác màu xanh dương nhé!"
+        "action": "Hãy tráng sạch và bỏ vào thùng Rác Tái Chế (Màu Xanh Dương)!"
     }
     return render_template('ket_qua.html', result=result, img_path=filename)
 
-@app.route('/landing')
-def landing():
-    return render_template('landing.html')
+@app.route('/api/stats')
+def get_stats():
+    #API để JavaScript vẽ biểu đồ lấy dữ liệu
+    stats = get_stats_data()
+    return jsonify({
+        "labels": stats["labels"],
+        "counts": stats["counts"],
+        "total": stats["total"]
+    })
 
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for('landing'))
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
