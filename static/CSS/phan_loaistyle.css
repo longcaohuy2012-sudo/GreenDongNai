@@ -6,6 +6,21 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+img {
+    content-visibility: auto;
+}
+
+[class*="-card"] {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 40px;
+    border-radius: 40px;
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    will-change: transform;
+}
 body {
     min-height: 100vh;
     background: linear-gradient(135deg, #b7e4c7, #95d5b2, #74c69d);
@@ -14,7 +29,6 @@ body {
     position: relative;
 }
 
-/* 2. HIỆU ỨNG NỀN (Mặt trời & Bụi sao) */
 body::before {
     content: "";
     position: fixed;
