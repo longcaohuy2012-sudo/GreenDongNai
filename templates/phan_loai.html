@@ -1,1 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Đồng Nai - Cẩm nang phân loại rác</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/phan_loaistyle.css') }}">
+</head>
 
+<body>
+    <div class="leaves">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="hover-zone"></div>
+    <nav class="navbar">
+        <div class="fc-top-bar"></div>
+        <a href="{{ url_for('home') }}">Trang chủ</a>
+        <a href="#">Phân loại rác</a>
+        <a href="{{ url_for('AI_image') }}">Chụp ảnh</a>
+        <a href="{{ url_for('login') }}">Đăng xuất</a>
+    </nav>
+
+    <h1 class="main-logo">🌏 Cẩm Nang Xanh</h1>
+
+    <section class="handbook-section">
+        <div class="handbook-container" style="display: flex; flex-direction: column; gap: 60px; width: 100%; max-width: 1100px; align-items: center;">
+            
+            <div class="organic-card">
+                <div class = "gallery-item">
+                    <img src="https://res.cloudinary.com/dgnmi99np/image/upload/v1774146701/pngtree-organic-waste-bin-in-vector-illustration-png-image_17944605_ieyijc.webp" alt="Hình minh họa rác hữu cơ" loading="lazy">                    
+                </div>
+                <div class = "card-content">
+                    <h2>Rác Thải Hữu Cơ</h2>
+                <ul class="info-list">
+                    <li><strong>Ví dụ:</strong> Thức ăn thừa, vỏ trái cây, bã trà, lá cây khô,...</li>
+                    <li><strong>Cách phân loại:</strong> Đựng trong túi sinh học, bỏ vào thùng xanh lá và xử lý hàng ngày.</li>
+                    <li><strong>Giá trị xanh:</strong> Tái chế thành phân bón giúp giảm 50% lượng rác thải sinh hoạt tại Đồng Nai.</li>
+                </ul>
+                </div>
+        </div>
+
+        <div class="recycling-card">
+                <div class = "gallery-item">
+                    <img src="https://res.cloudinary.com/dgnmi99np/image/upload/v1774147713/licensed-image1_jnr1pt.jpg" alt="Hình minh họa rác tái chế" loading="lazy">                    
+                </div>
+                <div class = "card-content">
+                    <h2>Rác Thải Tái chế</h2>
+                <ul class="info-list">
+                    <li><strong>Ví dụ:</strong> Chai nhựa, lon nhôm, thùng carton, giấy báo cũ,...</li>
+                    <li><strong>Cách phân loại:</strong> Làm sạch, để khô và ép dẹp để tiết kiệm không gian lưu trữ.</li>
+                    <li><strong>Giá trị xanh:</strong> Tái chế 1 lon nhôm tiết kiệm đủ điện để chạy TV trong 3 giờ liên tục.</li>
+                </ul>
+                </div>
+        </div>
+
+        <div class="inorganic-card">
+                <div class = "gallery-item">
+                    <img src="https://res.cloudinary.com/dgnmi99np/image/upload/v1774147713/licensed-image1_jnr1pt.jpg" alt="Hình minh họa rác vô cơ" loading="lazy">                    
+                </div>
+                <div class = "card-content">
+                    <h2>Rác Thải Vô cơ</h2>
+                <ul class="info-list">
+                    <li><strong>Ví dụ:</strong> Túi nilon, hộp xốp, gốm sứ vỡ, tã giấy, khẩu trang,...</li>
+                    <li><strong>Cách phân loại:</strong> Gom gọn vào túi kín và bỏ vào các điểm thu gom rác công cộng.</li>
+                    <li><strong>Giá trị xanh:</strong> Hạn chế sử dụng giúp ngăn chặn túi nilon tồn tại 500 năm dưới lòng đất.</li>                
+                </ul>
+                </div>
+        </div>
+
+            <div class="hazardous-card">
+                <div class = "gallery-item">
+                    <img src="https://res.cloudinary.com/dgnmi99np/image/upload/v1774147947/blog-image-1920-1080-px-8-1_uzqayj.webp" alt="Hình minh họa rác nguy hại" loading="lazy">                    
+                </div>
+                <div class = "card-content">
+                    <h2>Rác Thải nguy hại</h2>
+                <ul class="info-list">
+                    <li><strong>Ví dụ:</strong> Pin cũ, bóng đèn, thiết bị điện tử hỏng, vỏ chai hóa chất...</li>
+                    <li><strong>Cách phân loại:</strong> Không vứt chung rác thường, gom vào hộp cứng và mang tới điểm xử lý riêng.</li>
+                    <li><strong>Giá trị xanh:</strong> 1 viên pin nhỏ có thể làm ô nhiễm 500 lít nước ngầm nếu vứt sai cách.</li>
+                </ul>
+                </div>
+        </div>
+</body>
+</html>

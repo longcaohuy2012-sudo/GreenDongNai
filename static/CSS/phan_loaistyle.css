@@ -131,128 +131,121 @@ body::after {
     z-index: 20;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
-
-.home {
+/* 4. HANDBOOK LAYOUT (PHẪU THUẬT CHÍNH) */
+.handbook-section {
     display: flex;
     justify-content: center;
-    padding: 20px 20px 100px;
-    position: relative;
-    z-index: 5;
+    padding: 60px 20px;
 }
 
-.home-container {
+.handbook-container {
     display: flex;
     flex-direction: column;
-    gap: 50px;
+    gap: 60px;
     width: 100%;
-    max-width: 1200px; /* KÉO RỘNG: Tăng từ 900px lên 1200px */
+    max-width: 1100px;
 }
 
-.home-box {
-    background: rgba(255, 255, 255, 0.18);
-    padding: 50px; /* Tăng padding để nội dung thở tốt hơn */
-    border-radius: 40px; /* Bo góc mượt hơn cho khối lớn */
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    transition: transform 0.4s ease, background 0.4s ease;
+/* Style chung cho các loại Card */
+[class*="-card"] {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 40px;
+    border-radius: 40px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.home-box:hover {
+[class*="-card"]:hover {
     transform: translateY(-10px);
     background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
-.home-box h2 {
-    font-size: 2.2rem;
-    color: #1b4332;
-    margin-bottom: 25px;
+/* ✨ HIỆU ỨNG ĐẢO CHIỀU (Z-LAYOUT) */
+/* Khối thứ 2 (Tái chế) và thứ 4 (Nguy hại) sẽ đảo ảnh sang phải */
+.recycling-card, .hazardous-card {
+    flex-direction: row-reverse;
 }
 
-.home-box p {
-    font-size: 1.15rem;
-    line-height: 1.8;
-    color: #1b4332;
-    text-align: justify; /* Cho đoạn văn đều hai bên */
-}
-
-/* 6. CHI TIẾT BIỂU ĐỒ & GALLERY */
-.chart-container {
-    width: 100%;
-    max-width: 1000px; /* Khống chế biểu đồ không quá to loãng */
-    height: 450px; /* Tăng chiều cao biểu đồ */
-    margin: 30px auto 0;
-    background: rgba(255, 255, 255, 0.25);
-    padding: 30px;
-    border-radius: 25px;
-}
-
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
-    margin-top: 30px;
-}
-
+/* Hình ảnh */
 .gallery-item {
-    position: relative;
-    height: 350px; /* Tăng chiều cao ảnh */
+    flex: 1;
+    height: 300px;
     border-radius: 25px;
     overflow: hidden;
-    border: 2px solid rgba(255,255,255,0.5);
+    border: 3px solid rgba(255, 255, 255, 0.4);
 }
 
 .gallery-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: 0.6s;
 }
 
-.gallery-item:hover img { transform: scale(1.1); }
-
-.quote-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(27, 67, 50, 0.88);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    opacity: 0; 
-    visibility: hidden;
-    transition: opacity 0.4s ease, visibility 0.4s ease;
+[class*="-card"]:hover img {
+    transform: scale(1.1);
 }
 
-.gallery-item:hover .quote-overlay {
-    opacity: 1;
-    visibility: visible;
+/* Nội dung văn bản */
+.card-content {
+    flex: 1.2;
 }
 
-.quote-overlay p {
-    color: white !important;
-    font-size: 1.05rem;
-    font-style: italic;
+.card-content h2 {
+    font-size: 2.2rem;
+    color: #1b4332;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.info-list {
+    list-style: none;
+}
+
+.info-list li {
+    font-size: 1.1rem;
+    color: #1b4332;
+    margin-bottom: 15px;
     line-height: 1.6;
-    text-align: center;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3); /* Thêm bóng đổ nhẹ cho chữ rõ hơn */
+    padding-left: 30px;
+    position: relative;
 }
 
-/* 7. SCROLLBAR & RESPONSIVE */
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #52B788; border-radius: 10px; }
-
-@media (max-width: 1024px) {
-    .home-container { max-width: 95%; }
+/* Custom Bullet points bằng Icon */
+.info-list li::before {
+    content: "🌱";
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
-@media (max-width: 768px) {
-    .gallery-grid { grid-template-columns: 1fr; }
-    .main-logo { font-size: 2.5rem; }
-    .home-box { padding: 30px 20px; }
-    .home-box h2 { font-size: 1.8rem; }
-    .chart-container { height: 300px; }
+/* 5. ĐẶC TRƯNG MÀU SẮC RIÊNG CHO TỪNG LOẠI */
+.organic-card { border-left: 8px solid #2d6a4f; }
+.recycling-card { border-left: 8px solid #f8f9fa; }
+.inorganic-card { border-left: 8px solid #74c69d; }
+.hazardous-card { border-left: 8px solid #d90429; }
+
+/* 6. RESPONSIVE (Cho điện thoại) */
+@media (max-width: 900px) {
+    [class*="-card"], .recycling-card, .hazardous-card {
+        flex-direction: column;
+        padding: 30px;
+        text-align: center;
+    }
+    
+    .gallery-item {
+        width: 100%;
+        height: 200px;
+    }
+    
+    .info-list li {
+        text-align: left;
+    }
 }
