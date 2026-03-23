@@ -15,10 +15,10 @@
     <div class="hover-zone"></div>
     <nav class="navbar">
         <div class="fc-top-bar"></div>
-        <a href="#">Trang chủ</a>
+        <a href="#" class="active">Trang chủ</a>
         <a href="{{ url_for('phan_loai') }}">Phân loại rác</a>
         <a href="{{ url_for('AI_image') }}">Chụp ảnh</a>
-        <a href="{{ url_for('login') }}">Đăng xuất</a>
+        <a href="{{ url_for('logout') }}" style="color: #ff4d4d;">Đăng xuất</a>
     </nav>
 
     <h1 class="main-logo">🌿 Green Đồng Nai</h1>
@@ -31,14 +31,23 @@
                 <p style="color: #1b4332; line-height: 1.8; text-align: justify; font-size: 1.05rem;">
                     <strong>Green Đồng Nai</strong> không chỉ là một ứng dụng, mà là hành trình kết nối trí tuệ nhân tạo (AI) với nhịp sống bền vững của địa phương. 
                     Bằng cách kết hợp công nghệ nhận diện rác thải thông minh cùng hệ thống dữ liệu trực quan sinh động, chúng tôi biến mỗi hành động phân loại nhỏ bé của bạn thành một bước tiến lớn cho hành tinh. 
-                    Với giao diện kính mờ hiện đại và không gian tương tác 3D độc đáo, hãy cùng chúng tôi khám phá sức mạnh của công nghệ trong việc kiến tạo một Đồng Nai xanh, sạch và dẫn đầu xu hướng tương lai.
+                    Với giao diện kính mờ hiện đại và không gian tương tác 3D độc đáo, hãy cùng chúng tôi khám phá sức mạnh của công nghệ trong việc kiến tạo một Đồng Nai xanh, sạch và dẫn đầu xu hướng tương lai. 
+                </p>
+                <hr style="border: 0; border-top: 1px solid rgba(45, 106, 79, 0.2); margin: 20px 0;">
+                <p style="text-align: center; font-weight: bold; font-size: 1.2rem; color: #2d6a4f;">
+                    Chúng ta đã cùng nhau nhận diện: 
+                    <span style="color: #1b4332; background: #d8f3dc; padding: 2px 10px; border-radius: 10px;">
+                        {{ total_scans }}
+                    </span> tấm ảnh rác!
                 </p>
             </div>
 
             <div class="home-box">
                 <h2 style="margin-bottom: 10px;">Sức mạnh AI của chúng tôi</h2>
-                <p style="margin-bottom: 25px; color: #2d6a4f; font-style: italic;">Phân tích dữ liệu rác thải thời gian thực</p>
-                <div class="chart-container" style="background: rgba(255,255,255,0.2); border-radius: 20px; padding: 15px;">
+                <p style="margin-bottom: 25px; color: #2d6a4f; font-style: italic; text-align: center;">
+                    Phân tích dữ liệu rác thải thời gian thực
+                </p>
+                <div class="chart-container" style="background: rgba(255,255,255,0.2); border-radius: 20px; padding: 15px; height: 300px;">
                     <canvas id="myChart"></canvas>
                 </div>
             </div>
@@ -48,19 +57,11 @@
                 <div class="gallery-grid">
                     <div class="gallery-item">
                         <img src="https://res.cloudinary.com/dgnmi99np/image/upload/f_auto,q_auto/v1774063108/e5de72a8-2bd0-45ef-9535-6271736ae985_tcrupq.jpg" alt="Hồ Trị An" loading="lazy">
-                        <div class="quote-overlay"><p>"Màu xanh là màu của sự sống, và chúng ta là những người giữ lửa cho màu xanh ấy."</p></div>
+                        <div class="quote-overlay"><p>"Màu xanh là màu của sự sống."</p></div>
                     </div>
                     <div class="gallery-item">
                         <img src="https://res.cloudinary.com/dgnmi99np/image/upload/f_auto,q_auto/v1774063109/85e50aec-6433-4723-8cc9-13e920d03d7d_gnakj0.jpg" alt="Tình nguyện viên" loading="lazy">
-                        <div class="quote-overlay"><p>"Sức mạnh của một cộng đồng không nằm ở chỗ họ có thể làm gì mà ở chỗ họ sẵn sàng làm gì." - Jane Goodall</p></div>
-                    </div>
-                    <div class="gallery-item">
-                        <img src="https://res.cloudinary.com/dgnmi99np/image/upload/f_auto,q_auto/v1774063109/91a5c9bc-c912-4e8a-822a-c7f7339c3520_ipf8qs.jpg" alt="Cây cổ thụ" loading="lazy">
-                        <div class="quote-overlay"><p>"Hãy để những cánh rừng già thì thầm câu chuyện của chúng, và chúng ta là người lắng nghe."</p></div>
-                    </div>
-                    <div class="gallery-item">
-                        <img src="https://res.cloudinary.com/dgnmi99np/image/upload/f_auto,q_auto/v1774063108/daba7953-12e3-4e56-a952-6f9b2c1b33c8_mru5tl.jpg" alt="Trẻ em" loading="lazy">
-                        <div class="quote-overlay"><p>"Trẻ em là những mầm non, hãy gieo trồng tình yêu thiên nhiên vào lòng chúng." - Mahatma Gandhi</p></div>
+                        <div class="quote-overlay"><p>"Sức mạnh nằm ở sự sẵn lòng."</p></div>
                     </div>
                 </div>
             </div>
@@ -70,23 +71,36 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx = document.getElementById('myChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Rác tái chế', 'Rác vô cơ', 'Rác hữu cơ', 'Rác nguy hại'],
-                datasets: [{
-                    label: 'Số lượng rác đã nhận diện (tấm)',
-                    data: [976, 1324, 1200, 167], 
-                    backgroundColor: ['#2d6a4f', '#52b788', '#b7e4c7', '#ff4d4d'],
-                    borderRadius: 10
-                }]
-            },
-            options: { 
-                responsive: true,
-                maintainAspectRatio: false
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                const ctx = document.getElementById('myChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels, 
+                        datasets: [{
+                            label: 'Số lượng rác đã nhận diện (tấm)',
+                            data: data.counts, 
+                            backgroundColor: ['#2d6a4f', '#52b788', '#b7e4c7', '#ff4d4d'],
+                            borderRadius: 10
+                        }]
+                    },
+                    options: { 
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Lỗi khi tải dữ liệu biểu đồ:", error);
             }
-        });
+        }
+        window.onload = loadStats;
     </script>
 </body>
 </html>
