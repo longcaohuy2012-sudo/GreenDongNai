@@ -66,6 +66,13 @@ def home():
 def landing():
     return render_template('landing.html')
 
+@app.route('/phan-loai')
+def phan_loai():
+    """Hàm này xử lý trang Cẩm nang phân loại rác"""
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    return render_template('phan_loai_rac.html')
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
