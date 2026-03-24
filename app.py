@@ -18,7 +18,7 @@ mongo = PyMongo(app)
 
 # --- CẤU HÌNH API AI ---
 # Sau khi bạn tạo API Engine (ở Bước 2), hãy dán link vào đây
-AI_ENGINE_URL = "https://your-ai-engine.onrender.com/predict" 
+AI_ENGINE_URL = "https://greendongnai-ai-engine.onrender.com" 
 
 LABELS = ["Rác hữu cơ", "Rác nguy hại", "Rác tái chế", "Rác vô cơ"]
 ACTIONS = [
@@ -48,7 +48,7 @@ def api_stats():
         "labels": ["Hữu cơ", "Nguy hại", "Tái chế", "Vô cơ"],
         "counts": counts
     })
-    
+
 @app.route('/')
 def home():
     if 'user' not in session: 
