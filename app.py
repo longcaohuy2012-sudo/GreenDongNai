@@ -36,18 +36,19 @@ ACTIONS = [
     "Bỏ vào thùng rác còn lại để đem đi chôn lấp." # Vô cơ
 ]
 
-# --- SỬA LỖI CHÍ MẠNG: KHỞI TẠO INTERPRETER ---
-# Bạn đã quên dòng này ở code cũ, dẫn đến lỗi "NameError: name 'interpreter' is not defined"
+# --- KHỞI TẠO AN TOÀN ---
+interpreter = None
 try:
     if os.path.exists(MODEL_PATH):
-        interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+        # Thêm num_threads để tối ưu trên Render
+        interpreter = tflite.Interpreter(model_path=MODEL_PATH, num_threads=1)
         interpreter.allocate_tensors()
-        print("✅ Đã tải model thành công!")
+        print("✅ Model Loaded!")
     else:
-        print(f"❌ Không tìm thấy file model tại: {MODEL_PATH}")
-        interpreter = None
+        print("❌ Model file not found!")
 except Exception as e:
-    print(f"❌ Lỗi khi khởi tạo model: {e}")
+    print(f"❌ Lỗi khởi tạo model: {str(e)}")
+    # Không để app sập, chỉ vô hiệu hóa tính năng AI
     interpreter = None
 
 def predict_trash(img_path):
