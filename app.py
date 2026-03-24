@@ -20,7 +20,6 @@ app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 mongo = PyMongo(app)
 
 # --- CẤU HÌNH API AI ---
-# Đảm bảo URL này có thêm /predict ở cuối nếu Engine của bạn dùng route đó
 AI_ENGINE_URL = "https://greendongnai-ai-engine.onrender.com/predict" 
 
 LABELS = ["Rác hữu cơ", "Rác vô cơ", "Rác tái chế", "Rác nguy hại"]
@@ -84,14 +83,14 @@ def AI_image():
             file.save(upload_path)
 
             with open(upload_path, 'rb') as f:
-                # Gửi ảnh sang Engine (Timeout 25s để tránh Render ngủ quên)
+                # Gửi ảnh sang Engine (Timeout 25s)
                 response = requests.post(AI_ENGINE_URL, files={'file': f}, timeout=25)
             
             if response.status_code == 200:
                 result = response.json()
                 res_idx = result.get('result_index', 0)
-                # Nếu Engine không trả về confidence, mặc định 100%
-                conf = result.get('confidence', 1.0) 
+                #Engine không trả về confidence, mặc định 90%
+                conf = result.get('confidence', 0.9) 
 
                 mongo.db.statistics.update_one(
                     {"id": "global_stats"},
@@ -151,7 +150,6 @@ def login():
         identity = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         
-        # Tìm user khớp username HOẶC email
         user = mongo.db.users.find_one({
             "$or": [{"username": identity}, {"email": identity}]
         })

@@ -95,14 +95,14 @@
             }
         });
 
-        // Hiệu ứng Loading khi bấm nút
+        // Hiệu ứng Loading
         uploadForm.onsubmit = () => {
             submitBtn.innerHTML = "⌛ Đang phân tích...";
             submitBtn.style.opacity = "0.7";
             submitBtn.style.pointerEvents = "none"; // Tránh bấm nhiều lần
         };
 
-        // Hiệu ứng kéo thả cho Drop Zone
+        // Hiệu ứng kéo thả
         const dropZone = document.querySelector(".drop-zone");
         inputElement.addEventListener("dragover", () => dropZone.classList.add("drop-zone--over"));
         ["dragleave", "dragend"].forEach(type => {
