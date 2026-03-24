@@ -23,7 +23,6 @@ mongo = PyMongo(app)
 
 # --- CẤU HÌNH AI TFLITE ---
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'waste_model.tflite')
-# Chú ý: Thứ tự nhãn phải khớp 100% với lúc bạn Train AI
 LABELS = ["Rác hữu cơ", "Rác nguy hại", "Rác tái chế", "Rác vô cơ"]
 ACTIONS = [
     "Hãy tráng sạch và bỏ vào thùng màu Xanh Dương!",
@@ -35,9 +34,6 @@ ACTIONS = [
 def predict_trash(img_path):
     """Hàm xử lý ảnh và dự đoán bằng TFLite"""
     try:
-        interpreter = tflite.Interpreter(model_path=MODEL_PATH)
-        interpreter.allocate_tensors()
-
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
 
