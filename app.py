@@ -110,6 +110,9 @@ def AI_image():
             return redirect(url_for('phan_loai'))
     return render_template('nhan_dien_anh.html', prediction=None)
 
+@app.route('/landing')
+def landing():
+    return render_template('landing.html')
 @app.route('/')
 def home():
     if 'user' not in session: return redirect(url_for('landing'))
