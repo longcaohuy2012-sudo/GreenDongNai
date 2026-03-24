@@ -135,11 +135,21 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user = mongo.db.users.find_one({"username": request.form.get('username')})
-        if user and check_password_hash(user['password'], request.form.get('password')):
-            session['user'] = user['username']
-            return redirect(url_for('home'))
-        flash("Sai thông tin đăng nhập!")
+        identity = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        if not identity or not password:
+            flash("Vui lòng nhập đầy đủ tài khoản và mật khẩu!")
+            return render_template('login.html')
+        # 2. Tìm người dùng trong Database (Email hoặc Username)
+        user = mongo.db.users.find_one({
+            "$or": [{"username": identity}, {"email": identity}]
+        })
+        # 3. Kiểm tra mật khẩu an toàn
+        if user and 'password' in user:
+            if check_password_hash(user['password'], password):
+                session['user'] = user['username']
+                return redirect(url_for('home')) 
+        flash("Sai tài khoản hoặc mật khẩu!")     
     return render_template('login.html')
 
 @app.route('/logout')
