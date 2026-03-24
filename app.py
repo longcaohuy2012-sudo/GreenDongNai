@@ -88,48 +88,57 @@ def phan_loai():
     if 'user' not in session: return redirect(url_for('login'))
     return render_template('phan_loai.html')
 
-@app.route('/nhan_dien_anh', methods=['POST'])
+@app.route('/nhan_dien_anh', methods=['GET', 'POST'])
 def AI_image():
-    if 'user' not in session: return redirect(url_for('login'))
+    # 1. Kiểm tra đăng nhập
+    if 'user' not in session: 
+        return redirect(url_for('login'))
     
-    file = request.files.get('file')
-    if not file or file.filename == '':
-        flash('Vui lòng chọn ảnh.')
-        return redirect(url_for('phan_loai'))
+    # 2. Xử lý khi người dùng GỬI ẢNH (POST)
+    if request.method == 'POST':
+        file = request.files.get('file')
+        if not file or file.filename == '':
+            flash('Vui lòng chọn ảnh trước khi bấm nhận diện!')
+            return redirect(url_for('phan_loai'))
 
-    # Lưu ảnh tạm
-    filename = secure_filename(f"user_{int(time.time())}_{file.filename}")
-    upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(upload_path)
+        try:
+            # Lưu ảnh vào folder static/ảnh (Khớp với cấu trúc của bạn)
+            filename = secure_filename(f"user_{int(time.time())}_{file.filename}")
+            upload_folder = os.path.join(app.root_path, 'static', 'ảnh')
+            
+            # Tự động tạo thư mục 'ảnh' nếu chưa có để tránh lỗi sập web
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)
+                
+            upload_path = os.path.join(upload_folder, filename)
+            file.save(upload_path)
 
-    # GỌI AI THỰC TẾ
-    result_index, confidence = predict_trash(upload_path)
+            # 3. GỌI AI DỰ ĐOÁN
+            result_index, confidence = predict_trash(upload_path)
 
-    if result_index is not None:
-        # Cập nhật DB dựa trên kết quả AI
-        update_stats(result_index)
-        
-        result = {
-            "label": LABELS[result_index],
-            "confidence": f"{confidence*100:.2f}%",
-            "action": ACTIONS[result_index]
-        }
-        # Lưu lịch sử scan vào MongoDB
-        mongo.db.scans.insert_one({
-            "user": session['user'],
-            "label": LABELS[result_index],
-            "time": time.time(),
-            "img": filename
-        })
-        return render_template('ket_qua.html', result=result, img_path=filename)
+            if result_index is not None:
+                # Cập nhật số liệu vào MongoDB
+                update_stats(result_index)
+                
+                # Trả kết quả về lại file nhan_dien_anh.html
+                return render_template('nhan_dien_anh.html', 
+                                     prediction=LABELS[result_index], 
+                                     confidence=f"{confidence*100:.1f}%",
+                                     action=ACTIONS[result_index],
+                                     user_image=filename) # Gửi tên file để hiển thị lại ảnh
+            
+            flash("AI gặp sự cố khi phân tích. Hãy thử ảnh khác!")
+            return redirect(url_for('phan_loai'))
+
+        except Exception as e:
+            print(f"Lỗi hệ thống: {e}")
+            flash("Đã xảy ra lỗi trong quá trình xử lý.")
+            return redirect(url_for('phan_loai'))
+
+    # 4. Xử lý khi người dùng TRUY CẬP TRỰC TIẾP (GET)
+    # Trả về trang trống hoặc trang hướng dẫn để tránh lỗi 405
+    return render_template('nhan_dien_anh.html', prediction=None)
     
-    flash("AI không thể nhận diện ảnh này. Thử lại nhé!")
-    return redirect(url_for('phan_loai'))
-
-@app.route('/landing')
-def landing():
-    return render_template('landing.html')
-
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
