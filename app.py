@@ -81,8 +81,8 @@ def home():
     stats = get_stats_data()
     return render_template('trang_chu.html', total_scans=stats['total'], username=session['user'])
 
-@app.route('/phan-loai')
-def phan_loai():
+@app.route('/phan-loai') # Đây là địa chỉ URL trên trình duyệt
+def phan_loai():        # Tên hàm này phải khớp với chữ trong url_for
     if 'user' not in session: return redirect(url_for('login'))
     return render_template('phan_loai.html')
 
@@ -207,4 +207,4 @@ def logout():
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True) # Thêm debug=True
+    app.run(host='0.0.0.0', port=port, debug=False)
