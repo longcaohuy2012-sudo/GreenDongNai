@@ -23,7 +23,7 @@ mongo = PyMongo(app)
 # Đảm bảo URL này có thêm /predict ở cuối nếu Engine của bạn dùng route đó
 AI_ENGINE_URL = "https://greendongnai-ai-engine.onrender.com/predict" 
 
-LABELS = ["Rác hữu cơ", "Rác nguy hại", "Rác tái chế", "Rác vô cơ"]
+LABELS = ["Rác hữu cơ", "Rác vô cơ", "Rác tái chế", "Rác nguy hại"]
 ACTIONS = [
     "Có thể dùng làm phân bón, bỏ vào thùng màu Xanh Lá.",
     "Cần xử lý riêng, hãy mang đến điểm thu gom rác độc hại.",
