@@ -8,13 +8,8 @@ from flask_pymongo import PyMongo
 from dotenv import load_dotenv
 from PIL import Image
 
-# Thêm logging để dễ kiểm tra lỗi trên Render
-import logging
-
-try:
-    import tflite_runtime.interpreter as tflite
-except ImportError:
-    from tensorflow.lite.python.interpreter import Interpreter as tflite
+# SỬ DỤNG TENSORFLOW ĐẦY ĐỦ
+import tensorflow as tf
 
 load_dotenv()
 
@@ -25,10 +20,9 @@ app.secret_key = os.getenv('SECRET_KEY', 'dev_key_778899_secure_random_string')
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 mongo = PyMongo(app)
 
-# --- CẤU HÌNH AI TFLITE ---
+# --- CẤU HÌNH AI TENSORFLOW ---
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'waste_model.tflite')
 LABELS = ["Rác hữu cơ", "Rác nguy hại", "Rác tái chế", "Rác vô cơ"]
-# Sửa lại thứ tự ACTIONS cho khớp với LABELS của bạn
 ACTIONS = [
     "Có thể dùng làm phân bón, bỏ vào thùng màu Xanh Lá.", # Hữu cơ
     "Cần xử lý riêng, hãy mang đến điểm thu gom rác độc hại.", # Nguy hại
@@ -36,19 +30,18 @@ ACTIONS = [
     "Bỏ vào thùng rác còn lại để đem đi chôn lấp." # Vô cơ
 ]
 
-# --- KHỞI TẠO AN TOÀN ---
+# --- KHỞI TẠO AN TOÀN VỚI TENSORFLOW ---
 interpreter = None
 try:
     if os.path.exists(MODEL_PATH):
-        # Thêm num_threads để tối ưu trên Render
-        interpreter = tflite.Interpreter(model_path=MODEL_PATH, num_threads=1)
+        # TensorFlow full thường xử lý file tflite tốt hơn tflite-runtime trên Linux
+        interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
         interpreter.allocate_tensors()
-        print("✅ Model Loaded!")
+        print("✅ TensorFlow đã tải model thành công!")
     else:
-        print("❌ Model file not found!")
+        print(f"❌ Không tìm thấy file model tại: {MODEL_PATH}")
 except Exception as e:
     print(f"❌ Lỗi khởi tạo model: {str(e)}")
-    # Không để app sập, chỉ vô hiệu hóa tính năng AI
     interpreter = None
 
 def predict_trash(img_path):
@@ -58,7 +51,7 @@ def predict_trash(img_path):
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
 
-        # Resize về 224x224 và chuẩn hóa
+        # Tiền xử lý ảnh (224x224)
         img = Image.open(img_path).convert('RGB').resize((224, 224))
         img_array = np.array(img, dtype=np.float32) / 255.0
         img_array = np.expand_dims(img_array, axis=0)
@@ -75,56 +68,86 @@ def predict_trash(img_path):
         print(f"Lỗi AI: {e}")
         return None, 0
 
+# --- HÀM BỔ TRỢ DATABASE ---
+def get_stats_data():
+    try:
+        stats = mongo.db.statistics.find_one({"id": "global_stats"})
+        if not stats:
+            mongo.db.statistics.insert_one({
+                "id": "global_stats",
+                "counts": [0, 0, 0, 0],
+                "total": 0
+            })
+            return {"total": 0}
+        return stats
+    except:
+        return {"total": 0}
+
 # --- ROUTES ---
 
+@app.route('/')
+def home():
+    if 'user' not in session: 
+        return redirect(url_for('landing'))
+    stats = get_stats_data()
+    return render_template('trang_chu.html', total_scans=stats.get('total', 0), username=session['user'])
+
+@app.route('/landing')
+def landing():
+    return render_template('landing.html')
+
+@app.route('/phan-loai')
+def phan_loai():
+    if 'user' not in session: 
+        return redirect(url_for('login'))
+    return render_template('phan_loai.html')
+
 @app.route('/nhan_dien_anh', methods=['GET', 'POST'])
+@app.route('/predict', methods=['POST']) # Thêm route này để dự phòng cho HTML cũ
 def AI_image():
     if 'user' not in session: 
         return redirect(url_for('login'))
+    
     if request.method == 'POST':
         file = request.files.get('file')
         if not file or file.filename == '':
             flash('Vui lòng chọn ảnh trước khi bấm nhận diện!')
             return redirect(url_for('phan_loai'))
         try:
-            # Dùng tên file đơn giản, tránh dấu tiếng Việt
             filename = secure_filename(f"img_{int(time.time())}.jpg")
-            upload_folder = os.path.join(app.root_path, 'static', 'anh') # Đổi 'ảnh' -> 'anh' cho an toàn
+            upload_folder = os.path.join(app.root_path, 'static', 'anh')
+            
             if not os.path.exists(upload_folder):
                 os.makedirs(upload_folder)    
+            
             upload_path = os.path.join(upload_folder, filename)
             file.save(upload_path)
+            
             result_index, confidence = predict_trash(upload_path)
+            
             if result_index is not None:
-                # Cập nhật số liệu (tùy chọn)
-                # update_stats(result_index)   
+                # Cập nhật database
+                mongo.db.statistics.update_one(
+                    {"id": "global_stats"},
+                    {"$inc": {f"counts.{result_index}": 1, "total": 1}}
+                )
+                
                 return render_template('nhan_dien_anh.html', 
                                      prediction=LABELS[result_index], 
                                      confidence=f"{confidence*100:.1f}%",
                                      action=ACTIONS[result_index],
                                      user_image=filename) 
-            flash("AI gặp sự cố khi phân tích. Hãy thử ảnh khác!")
+            
+            flash("AI gặp sự cố khi phân tích.")
             return redirect(url_for('phan_loai'))
         except Exception as e:
-            print(f"Lỗi hệ thống: {e}")
-            flash("Đã xảy ra lỗi trong quá trình xử lý.")
+            print(f"Lỗi: {e}")
+            flash("Đã xảy ra lỗi.")
             return redirect(url_for('phan_loai'))
+            
     return render_template('nhan_dien_anh.html', prediction=None)
 
-@app.route('/landing')
-def landing():
-    return render_template('landing.html')
-@app.route('/')
-def home():
-    if 'user' not in session: return redirect(url_for('landing'))
-    stats = get_stats_data()
-    return render_template('trang_chu.html', total_scans=stats['total'], username=session['user'])
-
-@app.route('/phan-loai')
-def phan_loai():
-    if 'user' not in session: return redirect(url_for('login'))
-    return render_template('phan_loai.html')
-
+# --- (Các route signup, login, logout giữ nguyên như code của bạn) ---
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -135,7 +158,6 @@ def signup():
         if not username or not password or not email:
             flash("Vui lòng điền đầy đủ thông tin!")
             return redirect(url_for('signup'))
-        # Kiểm tra trùng lặp
         existing_user = mongo.db.users.find_one({
             "$or": [{"username": username}, {"email": email}]
         })
@@ -145,7 +167,6 @@ def signup():
         if password != confirm:
             flash("Mật khẩu xác nhận không khớp!")
             return redirect(url_for('signup'))
-        # Lưu người dùng với mật khẩu đã băm (hashed)
         hashed_password = generate_password_hash(password)
         mongo.db.users.insert_one({
             "username": username,
@@ -171,11 +192,6 @@ def login():
         flash("Sai tài khoản hoặc mật khẩu!")
     return render_template('login.html')
 
-# --- XÁC MINH GOOGLE SEARCH CONSOLE ---
-@app.route('/google5399e6fea12a6540.html')
-def google_verify():
-    return "google-site-verification: google5399e6fea12a6540.html"
-
 @app.route('/logout')
 def logout():
     session.clear()
@@ -184,5 +200,3 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
-
-

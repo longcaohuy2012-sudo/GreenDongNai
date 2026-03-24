@@ -1,9 +1,7 @@
 flask
-tflite-runtime==2.14.0
-Pillow
-numpy
-gunicorn
 flask-pymongo
 python-dotenv
-dnspython
+pillow
+numpy
+tensorflow-cpu
 werkzeug
