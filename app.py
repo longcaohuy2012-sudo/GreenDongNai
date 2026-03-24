@@ -7,8 +7,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
 from PIL import Image
-
-import tflite_runtime.interpreter as tflite
+try:
+    import tflite_runtime.interpreter as tflite
+except ImportError:
+    from tensorflow.lite.python.interpreter import Interpreter as tflite # Dự phòng
 
 load_dotenv()
 
@@ -20,7 +22,7 @@ app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 mongo = PyMongo(app)
 
 # --- CẤU HÌNH AI TFLITE ---
-MODEL_PATH = os.path.join(os.path.dirname(__file__), 'model', 'waste_model.tflite')
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'waste_model.tflite')
 # Chú ý: Thứ tự nhãn phải khớp 100% với lúc bạn Train AI
 LABELS = ["Rác hữu cơ", "Rác nguy hại", "Rác tái chế", "Rác vô cơ"]
 ACTIONS = [
@@ -138,7 +140,7 @@ def AI_image():
     # 4. Xử lý khi người dùng TRUY CẬP TRỰC TIẾP (GET)
     # Trả về trang trống hoặc trang hướng dẫn để tránh lỗi 405
     return render_template('nhan_dien_anh.html', prediction=None)
-    
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -209,4 +211,4 @@ def logout():
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True) # Thêm debug=True
