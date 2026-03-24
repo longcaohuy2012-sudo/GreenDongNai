@@ -6,19 +6,22 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev_key_778899_secure_random_string')
+# Duy trì đăng nhập trong 7 ngày
+app.permanent_session_lifetime = timedelta(days=7)
 
 # --- CẤU HÌNH DATABASE ---
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 mongo = PyMongo(app)
 
 # --- CẤU HÌNH API AI ---
-# Sau khi bạn tạo API Engine (ở Bước 2), hãy dán link vào đây
-AI_ENGINE_URL = "https://greendongnai-ai-engine.onrender.com" 
+# Đảm bảo URL này có thêm /predict ở cuối nếu Engine của bạn dùng route đó
+AI_ENGINE_URL = "https://greendongnai-ai-engine.onrender.com/predict" 
 
 LABELS = ["Rác hữu cơ", "Rác nguy hại", "Rác tái chế", "Rác vô cơ"]
 ACTIONS = [
@@ -31,22 +34,18 @@ ACTIONS = [
 def get_stats_data():
     try:
         stats = mongo.db.statistics.find_one({"id": "global_stats"})
-        return stats if stats else {"total": 0}
+        return stats if stats else {"total": 0, "counts": [0, 0, 0, 0]}
     except:
-        return {"total": 0}
+        return {"total": 0, "counts": [0, 0, 0, 0]}
 
 # --- ROUTES ---
 
 @app.route('/api/stats')
 def api_stats():
-    # Lấy dữ liệu từ MongoDB đã lưu khi quét ảnh
     stats = get_stats_data()
-    # Nếu chưa có dữ liệu thì trả về mảng 0
-    counts = stats.get('counts', [0, 0, 0, 0])
-    
     return jsonify({
         "labels": ["Hữu cơ", "Nguy hại", "Tái chế", "Vô cơ"],
-        "counts": counts
+        "counts": stats.get('counts', [0, 0, 0, 0])
     })
 
 @app.route('/')
@@ -78,23 +77,22 @@ def AI_image():
             return redirect(url_for('phan_loai'))
         
         try:
-            # 1. Lưu ảnh tạm thời
             filename = secure_filename(f"img_{int(time.time())}.jpg")
             upload_folder = os.path.join(app.root_path, 'static', 'anh')
             if not os.path.exists(upload_folder): os.makedirs(upload_folder)
             upload_path = os.path.join(upload_folder, filename)
             file.save(upload_path)
 
-            # 2. GỌI API ĐỂ XỬ LÝ AI
             with open(upload_path, 'rb') as f:
-                response = requests.post(AI_ENGINE_URL, files={'file': f}, timeout=20)
+                # Gửi ảnh sang Engine (Timeout 25s để tránh Render ngủ quên)
+                response = requests.post(AI_ENGINE_URL, files={'file': f}, timeout=25)
             
             if response.status_code == 200:
                 result = response.json()
-                res_idx = result['result_index']
-                conf = result['confidence']
+                res_idx = result.get('result_index', 0)
+                # Nếu Engine không trả về confidence, mặc định 100%
+                conf = result.get('confidence', 1.0) 
 
-                # 3. Cập nhật DB
                 mongo.db.statistics.update_one(
                     {"id": "global_stats"},
                     {"$inc": {f"counts.{res_idx}": 1, "total": 1}},
@@ -107,28 +105,43 @@ def AI_image():
                                      action=ACTIONS[res_idx],
                                      user_image=filename)
             
-            flash("API AI đang bận hoặc khởi động chậm. Thử lại sau 10 giây!")
+            flash("AI Engine đang khởi động. Vui lòng thử lại sau vài giây!")
             return redirect(url_for('phan_loai'))
 
         except Exception as e:
-            print(f"Lỗi: {e}")
-            flash("Không thể kết nối với AI Engine.")
+            flash("Lỗi kết nối AI: Hãy kiểm tra URL Engine của bạn.")
             return redirect(url_for('phan_loai'))
             
     return render_template('nhan_dien_anh.html', prediction=None)
 
-# --- GIỮ NGUYÊN LOGIN/SIGNUP ---
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username, email, password = request.form.get('username'), request.form.get('email'), request.form.get('password')
-        if password != request.form.get('passwordconfirm'):
-            flash("Mật khẩu không khớp!"); return redirect(url_for('signup'))
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password')
+        confirm = request.form.get('passwordconfirm')
+
+        if not username or not email or not password:
+            flash("Không được để trống thông tin!"); return redirect(url_for('signup'))
+
+        if password != confirm:
+            flash("Mật khẩu xác nhận không khớp!"); return redirect(url_for('signup'))
         
-        if mongo.db.users.find_one({"username": username}):
-            flash("Tài khoản đã tồn tại!"); return redirect(url_for('signup'))
+        # KIỂM TRA TRÙNG LẶP SÂU
+        existing_user = mongo.db.users.find_one({
+            "$or": [{"username": username}, {"email": email}]
+        })
+        
+        if existing_user:
+            flash("Tên đăng nhập hoặc Email này đã tồn tại!"); return redirect(url_for('signup'))
             
-        mongo.db.users.insert_one({"username": username, "email": email, "password": generate_password_hash(password)})
+        mongo.db.users.insert_one({
+            "username": username, 
+            "email": email, 
+            "password": generate_password_hash(password)
+        })
+        flash("Đăng ký thành công! Mời bạn đăng nhập.")
         return redirect(url_for('login'))
     return render_template('signup.html')
 
@@ -137,24 +150,24 @@ def login():
     if request.method == 'POST':
         identity = request.form.get('username', '').strip()
         password = request.form.get('password', '')
-        if not identity or not password:
-            flash("Vui lòng nhập đầy đủ tài khoản và mật khẩu!")
-            return render_template('login.html')
-        # 2. Tìm người dùng trong Database (Email hoặc Username)
+        
+        # Tìm user khớp username HOẶC email
         user = mongo.db.users.find_one({
             "$or": [{"username": identity}, {"email": identity}]
         })
-        # 3. Kiểm tra mật khẩu an toàn
-        if user and 'password' in user:
-            if check_password_hash(user['password'], password):
-                session['user'] = user['username']
-                return redirect(url_for('home')) 
-        flash("Sai tài khoản hoặc mật khẩu!")     
+
+        if user and check_password_hash(user['password'], password):
+            session.permanent = True
+            session['user'] = user['username']
+            return redirect(url_for('home'))
+            
+        flash("Thông tin tài khoản hoặc mật khẩu không chính xác!")
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
     session.clear()
+    flash("Bạn đã đăng xuất thành công.")
     return redirect(url_for('landing'))
 
 if __name__ == '__main__':
