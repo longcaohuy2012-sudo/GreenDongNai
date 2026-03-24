@@ -35,7 +35,7 @@ interpreter = None
 try:
     if os.path.exists(MODEL_PATH):
         # TensorFlow full thường xử lý file tflite tốt hơn tflite-runtime trên Linux
-        interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+        #interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
         interpreter.allocate_tensors()
         print("✅ TensorFlow đã tải model thành công!")
     else:
