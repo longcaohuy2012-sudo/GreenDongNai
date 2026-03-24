@@ -3,6 +3,6 @@ flask-pymongo
 python-dotenv
 pillow
 numpy
-tensorflow-cpu
-werkzeug
+requests
+werkzeug==2.2.2
 gunicorn
