@@ -4,15 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nhận diện ảnh - Green Đồng Nai</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/stylechu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/AIstyle.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-625RXZ1M32"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-625RXZ1M32"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-625RXZ1M32');
+    </script>  
+<body>
+      <nav class="navbar">
+        <div class="fc-top-bar"></div>
+        <a href="{{ url_for('home') }}">Trang chủ</a>
+        <a href="{{ url_for('phai_loai') }}">Phân loại rác</a>
+        <a href="#">Chụp ảnh</a>
+        <a href="{{ url_for('login') }}">Đăng xuất</a>
+    </nav>
 
-  gtag('config', 'G-625RXZ1M32');
-</script>
+    <div class="leaf-container">
+        <div class="leaf"></div>
+        <div class="leaf"></div>
+        <div class="leaf"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1 class="title">Green <span>Đồng Nai</span></h1>
+            <p>Hành động nhỏ, thay đổi lớn cho môi trường</p>
+        </header>
+
+        <main class="upload-section">
+            <div class="card">
+                <h3>Tải ảnh rác thải lên để AI nhận diện</h3>
+                <form id="upload-form" action="/predict" method="post" enctype="multipart/form-data">
+                    <div class="drop-zone">
+                        <span class="drop-zone__prompt">Kéo thả ảnh vào đây hoặc click để chọn</span>
+                        <input type="file" name="file" class="drop-zone__input" accept="image/*" required>
+                    </div>
+                    
+                    <div id="image-preview" class="preview-container">
+                        </div>
+
+                    <button type="submit" class="btn-scan">
+                        <span class="icon">🔍</span> Bắt đầu nhận diện
+                    </button>
+                </form>
+            </div>
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+        </main>
+    </div>
+
+    <script>
+        const inputElement = document.querySelector(".drop-zone__input");
+        const previewContainer = document.getElementById("image-preview");
+
+        inputElement.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewContainer.innerHTML = `<img src="${event.target.result}" class="img-fluid animated fadeIn">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Hiệu ứng loading khi bấm nút
+        form.onsubmit = () => {
+            document.getElementById("submit-btn").innerHTML = "⌛ Đang phân tích...";
+            document.getElementById("submit-btn").style.opacity = "0.7";
+        };
+    </script>
+</body>
 </html>

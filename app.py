@@ -1,40 +1,67 @@
 import os
 import time
+import numpy as np
 from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
+from PIL import Image
 
-# Tải các biến môi trường từ file .env
+import tflite_runtime.interpreter as tflite
+
 load_dotenv()
 
 app = Flask(__name__)
-
-# BẢO MẬT: Lấy Secret Key từ .env, nếu không có sẽ dùng chuỗi tạm an toàn
 app.secret_key = os.getenv('SECRET_KEY', 'dev_key_778899_secure_random_string')
 
-# --- CẤU HÌNH DATABASE (MONGODB) ---
-# Đảm bảo MONGO_URI trong Render đã sửa thành: 
-# mongodb+srv://longcaohuy2012_db_user:LONG10122012@green-dong-nai.dakgulr.mongodb.net/Green-Dong-Na?retryWrites=true&w=majority
+# --- CẤU HÌNH DATABASE ---
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 mongo = PyMongo(app)
 
-# --- CẤU HÌNH THƯ MỤC UPLOAD ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# --- CẤU HÌNH AI TFLITE ---
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'model', 'waste_model.tflite')
+# Chú ý: Thứ tự nhãn phải khớp 100% với lúc bạn Train AI
+LABELS = ["Rác hữu cơ", "Rác nguy hại", "Rác tái chế", "Rác vô cơ"]
+ACTIONS = [
+    "Hãy tráng sạch và bỏ vào thùng màu Xanh Dương!",
+    "Bỏ vào thùng rác còn lại để đem đi chôn lấp.",
+    "Có thể dùng làm phân bón, bỏ vào thùng màu Xanh Lá.",
+    "Cần xử lý riêng, hãy mang đến điểm thu gom rác độc hại."
+]
 
-# --- HÀM BỔ TRỢ SỐ LIỆU (FIX LỖI NHÂN BẢN) ---
+def predict_trash(img_path):
+    """Hàm xử lý ảnh và dự đoán bằng TFLite"""
+    try:
+        interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+        interpreter.allocate_tensors()
+
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+
+        # Tiền xử lý ảnh (Resize về 224x224 cho nhẹ RAM)
+        img = Image.open(img_path).convert('RGB').resize((224, 224))
+        img_array = np.array(img, dtype=np.float32) / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
+
+        interpreter.set_tensor(input_details[0]['index'], img_array)
+        interpreter.invoke()
+        
+        prediction = interpreter.get_tensor(output_details[0]['index'])
+        result_index = np.argmax(prediction)
+        confidence = float(np.max(prediction))
+        
+        return result_index, confidence
+    except Exception as e:
+        print(f"Lỗi AI: {e}")
+        return None, 0
+
+# --- HÀM BỔ TRỢ DATABASE ---
 def get_stats_data():
-    """Lấy số liệu thống kê bằng cơ chế Upsert (Cập nhật nếu có, tạo nếu chưa)"""
-    # Sử dụng $setOnInsert để chỉ khởi tạo dữ liệu khi bản ghi chưa tồn tại
     mongo.db.statistics.update_one(
         {"id": "global_stats"},
         {"$setOnInsert": {
-            "labels": ["Rác tái chế", "Rác vô cơ", "Rác hữu cơ", "Rác nguy hại"],
+            "labels": LABELS,
             "counts": [0, 0, 0, 0],
             "total": 0
         }},
@@ -43,32 +70,65 @@ def get_stats_data():
     return mongo.db.statistics.find_one({"id": "global_stats"})
 
 def update_stats(index):
-    """Tăng số lượng rác theo loại dựa trên vị trí index (0-3)"""
     mongo.db.statistics.update_one(
         {"id": "global_stats"},
         {"$inc": {f"counts.{index}": 1, "total": 1}}
     )
 
-# --- CÁC ĐƯỜNG DẪN (ROUTES) ---
+# --- ROUTES ---
 
 @app.route('/')
 def home():
-    if 'user' not in session: 
-        return redirect(url_for('landing'))
-    
+    if 'user' not in session: return redirect(url_for('landing'))
     stats = get_stats_data()
-    total = stats.get('total', 0) if stats else 0
-    return render_template('trang_chu.html', 
-                           total_scans=total, 
-                           username=session['user'])
+    return render_template('trang_chu.html', total_scans=stats['total'], username=session['user'])
+
+@app.route('/phan-loai')
+def phan_loai():
+    if 'user' not in session: return redirect(url_for('login'))
+    return render_template('phan_loai.html')
+
+@app.route('/nhan_dien_anh', methods=['POST'])
+def AI_image():
+    if 'user' not in session: return redirect(url_for('login'))
+    
+    file = request.files.get('file')
+    if not file or file.filename == '':
+        flash('Vui lòng chọn ảnh.')
+        return redirect(url_for('phan_loai'))
+
+    # Lưu ảnh tạm
+    filename = secure_filename(f"user_{int(time.time())}_{file.filename}")
+    upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(upload_path)
+
+    # GỌI AI THỰC TẾ
+    result_index, confidence = predict_trash(upload_path)
+
+    if result_index is not None:
+        # Cập nhật DB dựa trên kết quả AI
+        update_stats(result_index)
+        
+        result = {
+            "label": LABELS[result_index],
+            "confidence": f"{confidence*100:.2f}%",
+            "action": ACTIONS[result_index]
+        }
+        # Lưu lịch sử scan vào MongoDB
+        mongo.db.scans.insert_one({
+            "user": session['user'],
+            "label": LABELS[result_index],
+            "time": time.time(),
+            "img": filename
+        })
+        return render_template('ket_qua.html', result=result, img_path=filename)
+    
+    flash("AI không thể nhận diện ảnh này. Thử lại nhé!")
+    return redirect(url_for('phan_loai'))
 
 @app.route('/landing')
 def landing():
     return render_template('landing.html')
-
-@app.route('/phan-loai')
-def phan_loai():
-    return render_template('phan_loai.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -126,40 +186,6 @@ def login():
         flash("Sai tài khoản hoặc mật khẩu!")
         
     return render_template('login.html')
-
-@app.route('/nhan_dien_anh', methods=['POST'])
-def AI_image():
-    if 'user' not in session: 
-        return redirect(url_for('login'))
-    
-    file = request.files.get('file')
-    if not file or file.filename == '':
-        flash('Vui lòng chọn ảnh.')
-        return redirect(url_for('home'))
-
-    ext = file.filename.rsplit('.', 1)[-1].lower()
-    filename = secure_filename(f"trash_{int(time.time())}.{ext}")
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-    # Giả lập AI: Tự động cộng 1 vào Rác tái chế (index 0)
-    update_stats(0) 
-
-    result = {
-        "label": "Chai nhựa PET",
-        "type": "Rác tái chế",
-        "action": "Hãy tráng sạch và bỏ vào thùng màu Xanh Dương!"
-    }
-    return render_template('ket_qua.html', result=result, img_path=filename)
-
-@app.route('/api/stats')
-def get_stats_api():
-    """API cho biểu đồ lấy dữ liệu"""
-    stats = get_stats_data()
-    return jsonify({
-        "labels": stats["labels"],
-        "counts": stats["counts"],
-        "total": stats["total"]
-    })
 
 # --- XÁC MINH GOOGLE SEARCH CONSOLE ---
 # Thay 'google-code.html' bằng mã thực tế từ Google cung cấp

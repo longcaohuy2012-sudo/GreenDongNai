@@ -1,5 +1,9 @@
 flask
+tflite-runtime
+Pillow
+numpy
 gunicorn
 flask-pymongo
 python-dotenv
 dnspython
+werkzeug
