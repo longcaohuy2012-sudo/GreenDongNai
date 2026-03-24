@@ -6,22 +6,23 @@
     <title>Nhận diện ảnh - Green Đồng Nai</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/AIstyle.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
+    
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-625RXZ1M32"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-625RXZ1M32');
-    </script>  
+    </script>
+</head>
 <body>
-      <nav class="navbar">
+    <div class="hover-zone"></div>
+    <nav class="navbar">
         <div class="fc-top-bar"></div>
         <a href="{{ url_for('home') }}">Trang chủ</a>
         <a href="{{ url_for('phan_loai') }}">Phân loại rác</a>
         <a href="#">Chụp ảnh</a>
-        <a href="{{ url_for('login') }}">Đăng xuất</a>
-    </nav>
+        <a href="{{ url_for('logout') }}">Đăng xuất</a> </nav>
 
     <div class="leaf-container">
         <div class="leaf"></div>
@@ -31,57 +32,82 @@
 
     <div class="container">
         <header>
-            <h1 class="title">Green <span>Đồng Nai</span></h1>
+            <h1 class="main-logo">Green <span>Đồng Nai</span></h1>
             <p>Hành động nhỏ, thay đổi lớn cho môi trường</p>
         </header>
 
         <main class="upload-section">
             <div class="card">
                 <h3>Tải ảnh rác thải lên để AI nhận diện</h3>
-                <form id="upload-form" action="/predict" method="post" enctype="multipart/form-data">
+                
+                <form id="upload-form" action="{{ url_for('AI_image') }}" method="post" enctype="multipart/form-data">
                     <div class="drop-zone">
                         <span class="drop-zone__prompt">Kéo thả ảnh vào đây hoặc click để chọn</span>
-                        <input type="file" name="file" class="drop-zone__input" accept="image/*" required>
+                        <input type="file" name="file" class="drop-zone__input" id="file-input" accept="image/*" required>
                     </div>
                     
                     <div id="image-preview" class="preview-container">
                         </div>
 
-                    <button type="submit" class="btn-scan">
+                    <button type="submit" class="btn-scan" id="submit-btn">
                         <span class="icon">🔍</span> Bắt đầu nhận diện
                     </button>
                 </form>
             </div>
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                {% for message in messages %}
-                  <div class="alert">{{ message }}</div>
-                {% endfor %}
-              {% endif %}
-            {% endwith %}
+
+            {% if prediction %}
+            <div id="result-area" class="result-card">
+                <div class="prediction-text">
+                    AI đoán đây là: <strong>{{ prediction }}</strong>
+                </div>
+                <div class="confidence-meter">
+                    Độ tin cậy: {{ confidence }}
+                </div>
+                <div class="action-tip">
+                    <strong>💡 Lời khuyên:</strong> {{ action }}
+                </div>
+                {% if user_image %}
+                    <img src="{{ url_for('static', filename='ảnh/' + user_image) }}" class="preview-img">
+                {% endif %}
+                <div style="margin-top: 20px;">
+                    <a href="{{ url_for('phan_loai') }}" style="color: var(--primary-green); font-weight: bold; text-decoration: none;">← Quay lại</a>
+                </div>
+            </div>
+            {% endif %}
         </main>
     </div>
 
     <script>
         const inputElement = document.querySelector(".drop-zone__input");
         const previewContainer = document.getElementById("image-preview");
+        const uploadForm = document.getElementById("upload-form");
+        const submitBtn = document.getElementById("submit-btn");
 
+        // Xem trước ảnh ngay khi chọn file
         inputElement.addEventListener("change", (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    previewContainer.innerHTML = `<img src="${event.target.result}" class="img-fluid animated fadeIn">`;
+                    previewContainer.innerHTML = `<img src="${event.target.result}" class="preview-img fadeIn">`;
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // Hiệu ứng loading khi bấm nút
-        form.onsubmit = () => {
-            document.getElementById("submit-btn").innerHTML = "⌛ Đang phân tích...";
-            document.getElementById("submit-btn").style.opacity = "0.7";
+        // Hiệu ứng Loading khi bấm nút
+        uploadForm.onsubmit = () => {
+            submitBtn.innerHTML = "⌛ Đang phân tích...";
+            submitBtn.style.opacity = "0.7";
+            submitBtn.style.pointerEvents = "none"; // Tránh bấm nhiều lần
         };
+
+        // Hiệu ứng kéo thả cho Drop Zone
+        const dropZone = document.querySelector(".drop-zone");
+        inputElement.addEventListener("dragover", () => dropZone.classList.add("drop-zone--over"));
+        ["dragleave", "dragend"].forEach(type => {
+            inputElement.addEventListener(type, () => dropZone.classList.remove("drop-zone--over"));
+        });
     </script>
 </body>
 </html>
