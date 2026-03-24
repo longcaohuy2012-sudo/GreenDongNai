@@ -14,7 +14,7 @@ body {
     position: relative;
 }
 
-/* 2. HIỆU ỨNG NỀN (Mặt trời & Bụi sao) */
+/* 2. HIỆU ỨNG NỀN */
 body::before {
     content: "";
     position: fixed;
@@ -64,7 +64,7 @@ body::after {
     animation: fall linear infinite;
 }
 
-/* Tối ưu hóa animation lá */
+
 .leaves span:nth-child(1) { left: 10%; animation-duration: 12s; }
 .leaves span:nth-child(2) { left: 25%; animation-duration: 10s; }
 .leaves span:nth-child(3) { left: 40%; animation-duration: 14s; }
@@ -145,13 +145,13 @@ body::after {
     flex-direction: column;
     gap: 50px;
     width: 100%;
-    max-width: 1200px; /* KÉO RỘNG: Tăng từ 900px lên 1200px */
+    max-width: 1200px;
 }
 
 .home-box {
     background: rgba(255, 255, 255, 0.18);
-    padding: 50px; /* Tăng padding để nội dung thở tốt hơn */
-    border-radius: 40px; /* Bo góc mượt hơn cho khối lớn */
+    padding: 50px;
+    border-radius: 40px;
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
     border: 1px solid rgba(255, 255, 255, 0.4);
@@ -175,14 +175,14 @@ body::after {
     font-size: 1.15rem;
     line-height: 1.8;
     color: #1b4332;
-    text-align: justify; /* Cho đoạn văn đều hai bên */
+    text-align: justify;
 }
 
-/* 6. CHI TIẾT BIỂU ĐỒ & GALLERY */
+/* 6. CHI TIẾT BIỂU ĐỒ và GALLERY */
 .chart-container {
     width: 100%;
-    max-width: 1000px; /* Khống chế biểu đồ không quá to loãng */
-    height: 450px; /* Tăng chiều cao biểu đồ */
+    max-width: 1000px;
+    height: 450px;
     margin: 30px auto 0;
     background: rgba(255, 255, 255, 0.25);
     padding: 30px;
@@ -198,7 +198,7 @@ body::after {
 
 .gallery-item {
     position: relative;
-    height: 350px; /* Tăng chiều cao ảnh */
+    height: 350px;
     border-radius: 25px;
     overflow: hidden;
     border: 2px solid rgba(255,255,255,0.5);
@@ -237,10 +237,10 @@ body::after {
     font-style: italic;
     line-height: 1.6;
     text-align: center;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3); /* Thêm bóng đổ nhẹ cho chữ rõ hơn */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
-/* 7. SCROLLBAR & RESPONSIVE */
+/* 7. Tay cuộn & hiện thị trên điện thoại  */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #52B788; border-radius: 10px; }

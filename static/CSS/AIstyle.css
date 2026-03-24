@@ -41,7 +41,7 @@ body {
 
 .navbar {
     position: fixed; 
-    top: -120px; /* Sửa lại để ẩn hẳn navbar khi chưa hover */
+    top: -120px;
     left: 0; 
     width: 100%;
     display: flex; 
@@ -53,7 +53,7 @@ body {
     transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
     z-index: 998;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-    box-sizing: border-box; /* Đảm bảo padding không làm tràn chiều ngang */
+    box-sizing: border-box;
 }
 
 .hover-zone:hover + .navbar, 
@@ -151,10 +151,10 @@ body {
     left: 0;
     opacity: 0;
     cursor: pointer;
-    z-index: 5; /* Đảm bảo input nằm trên để có thể click */
+    z-index: 5;
 }
 
-/* --- NÚT BẤM --- */
+/* --- BUTTONs --- */
 .btn-scan {
     background: linear-gradient(135deg, var(--primary-green), var(--dark-forest));
     color: white;
@@ -240,7 +240,7 @@ body {
     border-radius: 0 100% 0 100%;
     opacity: 0.4;
     animation: falling 12s linear infinite;
-    top: -50px; /* Thêm để lá xuất hiện từ ngoài màn hình */
+    top: -50px;
 }
 
 @keyframes falling {
@@ -255,7 +255,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- RESPONSIVE --- */
+/* --- Hiện thị trên điện thoại --- */
 @media (max-width: 600px) {
     .main-logo { font-size: 2.2rem; }
     .card { padding: 20px; }

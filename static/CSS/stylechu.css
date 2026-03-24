@@ -33,7 +33,7 @@ model-viewer {
     --progress-bar-color: #2d6a4f;
 }
 
-/* hiển thị web cho điện thoại(có thể bỏ do chx cần thiết)*/
+/* hiển thị web cho điện thoại*/
 @media (max-width: 600px) {
     .model-container {
         width: 120px;
@@ -332,7 +332,7 @@ body::before{
     display: flex;
     justify-content: center;
     gap: 20px;
-    flex-wrap: wrap; /* Giúp tự xuống dòng trên điện thoại */
+    flex-wrap: wrap;
 }
 
 .feature-card {
@@ -366,7 +366,7 @@ body::before{
     color: #2d6a4f;
 }
 
-/* Nút phụ (Sub-button) */
+/* Nút phụ*/
 .sub-btn {
     margin-left: 15px;
     text-decoration: none;

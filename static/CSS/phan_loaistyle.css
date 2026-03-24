@@ -81,7 +81,7 @@ body::after {
     animation: fall linear infinite;
 }
 
-/* Tối ưu hóa animation lá */
+
 .leaves span:nth-child(1) { left: 10%; animation-duration: 12s; }
 .leaves span:nth-child(2) { left: 25%; animation-duration: 10s; }
 .leaves span:nth-child(3) { left: 40%; animation-duration: 14s; }
@@ -142,7 +142,7 @@ body::after {
 .main-logo {
     text-align: center;
     margin: 60px 0 20px;
-    font-size: 3.5rem; /* Tăng nhẹ kích thước logo */
+    font-size: 3.5rem;
     color: #1b4332;
     position: relative;
     z-index: 20;
@@ -157,7 +157,7 @@ body::after {
     width: 100%; max-width: 1100px;
 }
 
-/* Style chung cho Card kính mờ */
+/* Style chung cho Card  */
 [class*="-card"] {
     display: flex; align-items: center; gap: 50px;
     padding: 40px; border-radius: 40px;
@@ -172,7 +172,6 @@ body::after {
     border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Z-Layout: Đảo chiều ảnh cho card số 2 và 4 */
 .recycling-card, .hazardous-card { flex-direction: row-reverse; }
 
 .gallery-item {
@@ -196,7 +195,7 @@ body::after {
     line-height: 1.6; padding-left: 35px; position: relative;
 }
 
-/* Icon gạch đầu dòng mặc định */
+
 .info-list li::before { position: absolute; left: 0; top: 0; font-size: 1.2rem; }
 
 /*5. CHI TIẾT MÀU SẮC TỪNG LOẠI*/
@@ -232,7 +231,7 @@ body::after {
 .hazardous-card:hover { box-shadow: 0 15px 40px rgba(217, 4, 41, 0.3); }
 .hazardous-card .info-list li::before { content: "✦"; }
 
-/*6. RESPONSIVE (MOBILE)*/
+/*6.Hiển thị trên điện thoại*/
 @media (max-width: 900px) {
     [class*="-card"], .recycling-card, .hazardous-card {
         flex-direction: column; padding: 25px; text-align: center;
