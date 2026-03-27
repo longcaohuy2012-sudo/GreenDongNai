@@ -144,37 +144,50 @@ async function compressImage(imgElement) {
 }
 
 async function submitFeedback(isSatisfied) {
-    const btn = event.target;
+    // Lấy đúng button vừa bấm
+    const btn = window.event.target; 
     const imgElement = document.querySelector('.preview-img');
     
-    // Hiện hiệu ứng Loading
-    btn.classList.add('btn-loading');
-    btn.innerHTML = `<span class="spinner"></span> Đang nén & gửi...`;
+    // Khóa nút để tránh bấm nhiều lần
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner"></span> Đang gửi...`;
 
     try {
-        // Nén ảnh trước khi gửi
-        const compressedData = isSatisfied ? null : await compressImage(imgElement);
+        let compressedData = null;
+        // Chỉ nén ảnh nếu KHÔNG hài lòng
+        if (!isSatisfied && imgElement) {
+            compressedData = await compressImage(imgElement);
+        }
 
         const data = {
             is_satisfied: isSatisfied,
             image_base64: compressedData,
-            ai_prediction: "{{ prediction }}",
-            user_label: isSatisfied ? "{{ prediction }}" : document.getElementById('correct-label').value
+            ai_prediction: document.getElementById('current-prediction').innerText,
+            user_label: isSatisfied ? document.getElementById('current-prediction').innerText : document.getElementById('correct-label').value
         };
 
         const response = await fetch('/api/feedback', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             body: JSON.stringify(data)
         });
 
-        if (response.ok) {
-            document.getElementById('feedback-section').innerHTML = "✅ Đã ghi nhận đóng góp!";
+        const result = await response.json();
+
+        if (response.ok && result.status === "success") {
+            document.getElementById('feedback-section').innerHTML = "<div class='fadeIn'>✅ Đã ghi nhận! Cảm ơn bạn.</div>";
+        } else {
+            throw new Error(result.message || "Lỗi Server");
         }
     } catch (error) {
-        alert("Lỗi kết nối server!");
-        btn.classList.remove('btn-loading');
-        btn.innerHTML = "Gửi lại";
+        console.error("Feedback Error:", error);
+        alert("Lỗi: " + error.message);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
     }
 }
 
