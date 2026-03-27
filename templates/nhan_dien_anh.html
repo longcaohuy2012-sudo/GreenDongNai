@@ -117,28 +117,47 @@
         function showCorrection() {
     document.getElementById('correction-area').style.display = 'block';
 }
+
+async function compressImage(imgElement) {
+    return new Promise((resolve) => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // Giới hạn chiều rộng tối đa là 800px (AI không cần ảnh quá to)
+        const maxWidth = 800;
+        let width = imgElement.naturalWidth;
+        let height = imgElement.naturalHeight;
+
+        if (width > maxWidth) {
+            height = (maxWidth / width) * height;
+            width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(imgElement, 0, 0, width, height);
+
+        // Nén ảnh về định dạng JPEG với chất lượng 0.7 (70%)
+        const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+        resolve(compressedBase64);
+    });
+}
+
 async function submitFeedback(isSatisfied) {
     const btn = event.target;
-    const originalText = btn.innerHTML;
-    
-    btn.classList.add('btn-loading');
-    btn.innerHTML = `<span class="spinner"></span> Đang gửi...`;
-
     const imgElement = document.querySelector('.preview-img');
     
-    const getBase64Image = (img) => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-        return canvas.toDataURL("image/jpeg");
-    };
+    // Hiện hiệu ứng Loading
+    btn.classList.add('btn-loading');
+    btn.innerHTML = `<span class="spinner"></span> Đang nén & gửi...`;
 
     try {
+        // Nén ảnh trước khi gửi
+        const compressedData = isSatisfied ? null : await compressImage(imgElement);
+
         const data = {
             is_satisfied: isSatisfied,
-            image_base64: isSatisfied ? null : getBase64Image(imgElement),
+            image_base64: compressedData,
             ai_prediction: "{{ prediction }}",
             user_label: isSatisfied ? "{{ prediction }}" : document.getElementById('correct-label').value
         };
@@ -150,17 +169,12 @@ async function submitFeedback(isSatisfied) {
         });
 
         if (response.ok) {
-            // 3. Thông báo thành công và ẩn phần feedback
-            document.getElementById('feedback-section').innerHTML = 
-                `<div class="action-tip" style="border-color: var(--primary-green); color: var(--primary-green);">
-                     Cảm ơn đóng góp của bạn cho Green Đồng Nai!
-                </div>`;
+            document.getElementById('feedback-section').innerHTML = "✅ Đã ghi nhận đóng góp!";
         }
     } catch (error) {
-        // 4. Xử lý lỗi nếu có
-        alert("Có lỗi xảy ra, vui lòng thử lại!");
+        alert("Lỗi kết nối server!");
         btn.classList.remove('btn-loading');
-        btn.innerHTML = originalText;
+        btn.innerHTML = "Gửi lại";
     }
 }
 
