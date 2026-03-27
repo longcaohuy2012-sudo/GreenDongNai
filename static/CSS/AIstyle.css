@@ -262,3 +262,39 @@ body {
     .navbar { gap: 10px; padding: 10px; }
     .navbar a { padding: 8px 12px; font-size: 0.8rem; }
 }
+/* Nút Menu mặc định sẽ ẩn trên máy tính */
+.menu-icon {
+    display: none; 
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 1000; /* Luôn nằm trên cùng */
+    background: white;
+    padding: 5px 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Khi màn hình nhỏ hơn 768px (Điện thoại/Máy tính bảng) */
+@media (max-width: 768px) {
+    .menu-icon {
+        display: block; /* Hiện nút 🍔 */
+    }
+
+    .navbar {
+        /* Ghi đè lại thuộc tính cũ để ẩn menu đi */
+        top: -100% !important; 
+        flex-direction: column; /* Xếp các link theo hàng dọc */
+        height: auto;
+        padding: 60px 20px 20px;
+    }
+
+    /* Khi class .active được thêm vào qua JS */
+    .navbar.active {
+        top: 0 !important;
+    }
+    
+    .hover-zone { display: none; } /* Tắt vùng hover trên mobile */
+}

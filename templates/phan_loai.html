@@ -22,6 +22,9 @@
 
     <div class="hover-zone"></div>
     <nav class="navbar">
+        <div class="menu-icon" onclick="toggleMenu()">
+            <span>🍀</span>
+        </div>
         <div class="fc-top-bar"></div>
         <a href="{{ url_for('home') }}">Trang chủ</a>
         <a href="#">Phân loại rác</a>
@@ -89,5 +92,19 @@
                 </ul>
                 </div>
         </div>
+    <script>
+        
+function toggleMenu() {
+    const navbar = document.getElementById('mainNavbar');
+    navbar.classList.toggle('active');
+    
+    const icon = document.querySelector('.menu-icon span');
+    if (navbar.classList.contains('active')) {
+        icon.innerHTML = "❌";
+    } else {
+        icon.innerHTML = "🍀";
+    }
+}
+    </script>
 </body>
 </html>

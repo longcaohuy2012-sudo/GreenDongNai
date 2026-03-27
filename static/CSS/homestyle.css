@@ -256,3 +256,35 @@ body::after {
     .home-box h2 { font-size: 1.8rem; }
     .chart-container { height: 300px; }
 }
+.menu-icon {
+    display: none; 
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 1000; /* Luôn nằm trên cùng */
+    background: white;
+    padding: 5px 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .menu-icon {
+        display: block; /* Hiện nút bấm */
+    }
+
+    .navbar {
+        top: -100% !important; 
+        flex-direction: column;
+        height: auto;
+        padding: 60px 20px 20px;
+    }
+
+    .navbar.active {
+        top: 0 !important;
+    }
+    
+    .hover-zone { display: none; }
+}
