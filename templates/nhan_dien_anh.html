@@ -57,22 +57,25 @@
 
             {% if prediction %}
             <div id="result-area" class="result-card">
-                <div class="prediction-text">
-                    AI đoán đây là: <strong>{{ prediction }}</strong>
-                </div>
-                <div class="confidence-meter">
-                    Độ tin cậy: {{ confidence }}
-                </div>
-                <div class="action-tip">
-                    <strong>💡 Lời khuyên:</strong> {{ action }}
-                </div>
-                {% if user_image %}
-                    <img src="{{ url_for('static', filename='ảnh/' + user_image) }}" class="preview-img">
-                {% endif %}
-                <div style="margin-top: 20px;">
-                    <a href="{{ url_for('phan_loai') }}" style="color: var(--primary-green); font-weight: bold; text-decoration: none;">← Quay lại</a>
-                </div>
-            </div>
+    <div class="prediction-text">
+        AI đoán đây là: <strong id="current-prediction">{{ prediction }}</strong>
+    </div>
+    <div id="feedback-section" style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
+        <p>Bạn có hài lòng với kết quả này không?</p>
+        <button type="button" class="btn-feedback" onclick="submitFeedback(true)" style="background: #2d6a4f; color: white;">Hài lòng 👍</button>
+        <button type="button" class="btn-feedback" onclick="showCorrection()" style="background: #6d4c41; color: white;">Không hài lòng 👎</button>
+
+        <div id="correction-area" style="display: none; margin-top: 15px;">
+            <p>Vậy đây là loại rác nào?</p>
+            <select id="correct-label" class="drop-zone__prompt" style="padding: 10px; border-radius: 10px; border: 1px solid var(--accent-green);">
+                {% for label in ["Rác hữu cơ", "Rác nguy hại", "Rác tái chế", "Rác vô cơ"] %}
+                <option value="{{ label }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" onclick="submitFeedback(false)" class="btn-scan" style="padding: 8px 20px; font-size: 0.9rem; margin-top: 10px;">Gửi nhãn đúng</button>
+        </div>
+    </div>
+    </div>
             {% endif %}
         </main>
     </div>
@@ -83,7 +86,6 @@
         const uploadForm = document.getElementById("upload-form");
         const submitBtn = document.getElementById("submit-btn");
 
-        // Xem trước ảnh ngay khi chọn file
         inputElement.addEventListener("change", (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -108,6 +110,30 @@
         ["dragleave", "dragend"].forEach(type => {
             inputElement.addEventListener(type, () => dropZone.classList.remove("drop-zone--over"));
         });
+
+        function showCorrection() {
+    document.getElementById('correction-area').style.display = 'block';
+}
+
+async function submitFeedback(isSatisfied) {
+    const data = {
+        is_satisfied: isSatisfied,
+        image_filename: "{{ user_image }}",
+        ai_prediction: "{{ prediction }}",
+        user_label: isSatisfied ? "{{ prediction }}" : document.getElementById('correct-label').value
+    };
+
+    const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+        alert("Cảm ơn Long! Dữ liệu đã được lưu để huấn luyện AI.");
+        document.getElementById('feedback-section').innerHTML = "<p>Cảm ơn bạn đã phản hồi để giúp chúng tôi hoàn thiện sản phẩm hơn!</p>";
+    }
+}
     </script>
 </body>
 </html>

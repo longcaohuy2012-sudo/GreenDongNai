@@ -22,12 +22,12 @@ mongo = PyMongo(app)
 # --- CẤU HÌNH API AI ---
 AI_ENGINE_URL = "https://greendongnai-ai-engine.onrender.com/predict" 
 
-LABELS = ["Rác hữu cơ", "Rác vô cơ", "Rác tái chế", "Rác nguy hại"]
+LABELS = ["Rác hữu cơ", "Rác nguy hại", "Rác tái chế", "Rác vô cơ"]
 ACTIONS = [
     "Có thể dùng làm phân bón, bỏ vào thùng màu Xanh Lá.",
-    "Bỏ vào thùng rác còn lại để đem đi chôn lấp.",
+    "Hãy mang rác đến các điểm thu gom rác nguy hại",
     "Hãy tráng sạch và bỏ vào thùng màu Xanh Dương!",
-    "Cần xử lý riêng, hãy mang đến điểm thu gom rác độc hại."
+    "Bỏ vào thùng rác còn lại để đem đi chôn lấp."
 ]
 
 def get_stats_data():
@@ -112,6 +112,28 @@ def AI_image():
             return redirect(url_for('phan_loai'))
             
     return render_template('nhan_dien_anh.html', prediction=None)
+    
+@app.route('/api/feedback', methods=['POST'])
+def save_feedback():
+    if 'user' not in session:
+        return jsonify({"status": "error", "message": "Vui lòng đăng nhập"}), 401
+    
+    data = request.json
+    try:
+        feedback_entry = {
+            "username": session['user'],
+            "image_filename": data.get('image_filename'),
+            "ai_prediction": data.get('ai_prediction'),
+            "user_label": data.get('user_label'),
+            "is_satisfied": data.get('is_satisfied'),
+            "timestamp": time.time()
+        }
+        
+        mongo.db.user_feedbacks.insert_one(feedbacks)
+        
+        return jsonify({"status": "success", "message": "Cảm ơn bạn đã góp ý!"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
