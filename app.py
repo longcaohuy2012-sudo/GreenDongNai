@@ -13,6 +13,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev_key_778899_secure_random_string')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 # Duy trì đăng nhập trong 7 ngày
 app.permanent_session_lifetime = timedelta(days=7)
 
@@ -85,7 +86,7 @@ def AI_image():
 
             with open(upload_path, 'rb') as f:
                 # Gửi ảnh sang Engine (Timeout 25s)
-                response = requests.post(AI_ENGINE_URL, files={'file': f}, timeout=25)
+                response = requests.post(AI_ENGINE_URL, files={'file': f}, timeout=60)
             
             if response.status_code == 200:
                 result = response.json()
