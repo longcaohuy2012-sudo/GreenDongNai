@@ -6,3 +6,4 @@ numpy
 requests
 werkzeug==2.2.2
 gunicorn
+base64

@@ -115,23 +115,34 @@
     document.getElementById('correction-area').style.display = 'block';
 }
 
-async function submitFeedback(isSatisfied) {
-    const data = {
-        is_satisfied: isSatisfied,
-        image_filename: "{{ user_image }}",
-        ai_prediction: "{{ prediction }}",
-        user_label: isSatisfied ? "{{ prediction }}" : document.getElementById('correct-label').value
+    async function submitFeedback(isSatisfied) {
+        const imgElement = document.querySelector('.preview-img');
+    
+        // Hàm lấy Base64 từ thẻ img
+        const getBase64Image = (img) => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            return canvas.toDataURL("image/jpeg");
     };
 
-    const response = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        const data = {
+            is_satisfied: isSatisfied,
+            image_base64: isSatisfied ? null : getBase64Image(imgElement),
+            ai_prediction: "{{ prediction }}",
+            user_label: isSatisfied ? "{{ prediction }}" : document.getElementById('correct-label').value
+    };
+
+        const response = await fetch('/api/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
     });
 
-    if (response.ok) {
-        alert("Cảm ơn Long! Dữ liệu đã được lưu để huấn luyện AI.");
-        document.getElementById('feedback-section').innerHTML = "<p>Cảm ơn bạn đã phản hồi để giúp chúng tôi hoàn thiện sản phẩm hơn!</p>";
+        if (response.ok) {
+            document.getElementById('feedback-section').innerHTML = "Cảm ơn bạn đã giúp Green Đồng Nai hoàn thiện!";
     }
 }
     </script>

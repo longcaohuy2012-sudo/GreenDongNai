@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
 from datetime import timedelta
+import base64
 
 load_dotenv()
 
@@ -89,7 +90,7 @@ def AI_image():
             if response.status_code == 200:
                 result = response.json()
                 res_idx = result.get('result_index', 0)
-                #Engine không trả về confidence, mặc định 90%
+                #Engine không trả về mức độ chắc chắn (confidence), mặc định 90%
                 conf = result.get('confidence', 0.9) 
 
                 mongo.db.statistics.update_one(
@@ -116,22 +117,21 @@ def AI_image():
 @app.route('/api/feedback', methods=['POST'])
 def save_feedback():
     if 'user' not in session:
-        return jsonify({"status": "error", "message": "Vui lòng đăng nhập"}), 401
+        return jsonify({"status": "error", "message": "Yêu cầu đăng nhập"}), 401
     
     data = request.json
     try:
         feedback_entry = {
             "username": session['user'],
-            "image_filename": data.get('image_filename'),
+            "image_data": data.get('image_base64'), # Chuỗi ảnh mã hóa
             "ai_prediction": data.get('ai_prediction'),
             "user_label": data.get('user_label'),
             "is_satisfied": data.get('is_satisfied'),
             "timestamp": time.time()
         }
         
-        mongo.db.user_feedbacks.insert_one(feedbacks)
-        
-        return jsonify({"status": "success", "message": "Cảm ơn bạn đã góp ý!"})
+        mongo.db.user_feedbacks.insert_one(feedback_entry)
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
